@@ -1,0 +1,3 @@
+[submodule "designing-bsd-rootkits"]
+	path = designing-bsd-rootkits
+	url = https://github.com/josephjkong/designing-bsd-rootkits.git

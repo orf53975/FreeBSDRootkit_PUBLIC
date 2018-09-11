@@ -1,4 +1,6 @@
 .*
+*.sh
+
 export_syms
 machine
 rootkit.kld

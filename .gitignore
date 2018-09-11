@@ -1,1 +1,6 @@
 .*
+export_syms
+machine
+rootkit.kld
+rootkit.o
+x86

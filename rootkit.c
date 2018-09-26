@@ -5,7 +5,10 @@
 #include <sys/sysent.h>
 #include <sys/kernel.h>
 #include <sys/systm.h>
+<<<<<<< HEAD
 #include <sys/sysproto.h>
+=======
+>>>>>>> 2dd79dc28d68ffdd709acc0cde3305315589ada1
 
 /* The system call's arguments. */
 struct rootkit_args {

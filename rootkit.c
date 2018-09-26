@@ -87,15 +87,15 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 	case MOD_LOAD:
-		uprintf("System call loaded at offset %d. yewwwwwwwwwwwwwwwwwww\n", offset);
-		sysent[SYS_kldstat].sy_call = (sy_call_t *)sys_kldstat_mod;
-		uprintf("kldstat hooked bb\n");
+		uprintf("System call loaded at offset %d.\n", offset);
+		sysent[SYS_kldstat].sy_call = (sy_call_t *)sys_kldstat_mod; // hook sys_kldstat
+		uprintf("kldstat hooked bb - pointed to %p ytb\n", (void *)sysent[SYS_kldstat].sy_call);
 		break;
 
 	case MOD_UNLOAD:
 		uprintf("System call unloaded from offset %d.\n", offset);
-		sysent[SYS_kldstat].sy_call = (sy_call_t *)sys_kldstat;
-		uprintf("kldstat unhooked\n");
+		sysent[SYS_kldstat].sy_call = (sy_call_t *)sys_kldstat_mod;
+		uprintf("kldstat unhooked - returned to original syscall at %p\n", (void *)sysent[SYS_kldstat].sy_call);
 		break;
 
 	default:

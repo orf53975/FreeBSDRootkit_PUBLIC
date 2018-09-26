@@ -12,8 +12,7 @@ struct rootkit_args {
 };
 
 /* The system call function. */
-static int
-rootkit_func(struct thread *td, void *syscall_args) {
+static int rootkit_func(struct thread *td, void *syscall_args) {
 	struct rootkit_args *uap;
 	uap = (struct rootkit_args *)syscall_args;
 
@@ -21,7 +20,7 @@ rootkit_func(struct thread *td, void *syscall_args) {
 }
 
 /* The sysent for the new system call. */
-static struct sysent sc_example_sysent = {
+static struct sysent rootkit_sysent = {
 	0,			/* number of arguments */
 	rootkit_func		/* implementing function */
 };
@@ -50,4 +49,14 @@ static int load(struct module *module, int cmd, void *arg) {
 	return(error);
 }
 
-SYSCALL_MODULE(rootkit_func, &offset, &sc_example_sysent, load, NULL);
+static struct syscall_module_data rootkit_func_mod = {
+	load, NULL, &offset, &rootkit_sysent, { 0, NULL }
+};
+
+static moduledata_t rootkit_mod = {
+	"rootkit",
+	syscall_module_handler,
+	&rootkit_func_mod
+};
+
+DECLARE_MODULE(rootkit_func, rootkit_mod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);

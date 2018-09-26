@@ -1,4 +1,4 @@
 KMOD = rootkit
-SRCS = rootkit.c hook.c
+SRCS = rootkit.c
 
 .include <bsd.kmod.mk>

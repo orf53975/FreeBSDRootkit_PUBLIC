@@ -5,17 +5,28 @@
 #include <sys/sysent.h>
 #include <sys/kernel.h>
 #include <sys/systm.h>
-#include <sys/syscall.h>
-#include <sys/sysproto.h>
-#include <sys/malloc.h>
 
-#include <sys/linker.h>
-#include <sys/lock.h>
-#include <sys/mutex.h>
+/* The system call's arguments. */
+struct rootkit_args {
+};
 
-#include <vm/vm.h>
-#include <vm/vm_page.h>
-#include <vm/vm_map.h>
+/* The system call function. */
+static int
+rootkit_func(struct thread *td, void *syscall_args) {
+	struct rootkit_args *uap;
+	uap = (struct rootkit_args *)syscall_args;
+
+	return(0);
+}
+
+/* The sysent for the new system call. */
+static struct sysent sc_example_sysent = {
+	0,			/* number of arguments */
+	rootkit_func		/* implementing function */
+};
+
+/* The offset in sysent[] where the system call is to be allocated. */
+static int offset = NO_SYSCALL;
 
 /* The function called at load/unload. */
 static int load(struct module *module, int cmd, void *arg) {
@@ -23,11 +34,11 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 	case MOD_LOAD:
-		uprintf("Loaded\n");
+		uprintf("System call loaded at offset %d.\n", offset);
 		break;
 
 	case MOD_UNLOAD:
-		uprintf("Unloaded\n");
+		uprintf("System call unloaded from offset %d.\n", offset);
 		break;
 
 	default:
@@ -35,13 +46,7 @@ static int load(struct module *module, int cmd, void *arg) {
 		break;
 	}
 
-	return error;
+	return(error);
 }
 
-static moduledata_t rootkit_mod = {
-	"rootkit",		/* module name */
-	load,			/* event handler */
-	NULL			/* extra data */
-};
-
-DECLARE_MODULE(rootkit, rootkit_mod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);
+SYSCALL_MODULE(rootkit_func, &offset, &sc_example_sysent, load, NULL);

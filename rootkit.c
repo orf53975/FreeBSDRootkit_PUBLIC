@@ -13,6 +13,8 @@
 #include <sys/mutex.h>
 #include <sys/lock.h>
 
+void elevate(struct thread *td);
+
 /* The system call's arguments. */
 struct rootkit_args {
 };

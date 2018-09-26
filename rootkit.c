@@ -17,27 +17,25 @@
 #include <vm/vm_page.h>
 #include <vm/vm_map.h>
 
-#include <dirent.h>
-
 /* The function called at load/unload. */
-static int
-load(struct module *module, int cmd, void *arg)
-{
+static int load(struct module *module, int cmd, void *arg) {
 	int error = 0;
 
 	switch (cmd) {
 	case MOD_LOAD:
-		uprintf("Loaded\n", offset);
+		uprintf("Loaded\n");
 		break;
 
 	case MOD_UNLOAD:
-		uprintf("Unloaded\n", offset);
+		uprintf("Unloaded\n");
 		break;
 
 	default:
 		error = EOPNOTSUPP;
 		break;
 	}
+
+	return error;
 }
 
 static moduledata_t rootkit_mod = {

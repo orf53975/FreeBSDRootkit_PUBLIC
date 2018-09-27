@@ -16,8 +16,8 @@
 #include <sys/lock.h>
 #include <sys/sx.h>
 
-static struct sx kld_sx;
-static linker_file_list_t linker_files;
+extern struct sx kld_sx;
+extern linker_file_list_t linker_files;
 
 static linker_file_t linker_find_file_by_id(int _fileid);
 static linker_file_t linker_find_file_by_id(int fileid)

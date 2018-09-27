@@ -34,12 +34,6 @@ int sys_kldnext_hook(struct thread *td, struct kldnext_args *uap)
 	linker_file_t lf;
 	int error = 0;
 
-#ifdef MAC
-	error = mac_kld_check_stat(td->td_ucred);
-	if (error)
-		return (error);
-#endif
-
 	sx_xlock(&kld_sx);
 	if (uap->fileid == 0)
 		lf = TAILQ_FIRST(&linker_files);

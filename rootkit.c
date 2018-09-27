@@ -49,11 +49,13 @@ static int load(struct module *module, int cmd, void *arg) {
 	case MOD_LOAD:
 		printf("system call loaded at offset %d.\n", offset);
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext_hook;
+		printf("kldnext hooked\n");
 		break;
 
 	case MOD_UNLOAD:
 		printf("system call unloaded from offset %d.\n", offset);
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
+		printf("kldnext unhooked\n");
 		break;
 
 	default:

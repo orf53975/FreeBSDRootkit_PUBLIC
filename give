@@ -1,2 +1,4 @@
-
+cd rootkit/
+tar -cvf ../rootkit.tar .
+cd ..
 give cs6447 rootkitmidpoint writeup.md rootkit.tar

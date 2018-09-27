@@ -1,8 +1,7 @@
 # Helpful Commands
 
 ```
-make
+make clean
+sudo ./install.sh
 kldstat
-sudo kldload rootkit
-sudo kldunload rootkit
 ```

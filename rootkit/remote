@@ -1,0 +1,4 @@
+#!/bin/sh
+TARGET_IP=$1 # The IP address of the system where the rootkit has been installed
+echo "Remote not implemented"
+exit 1

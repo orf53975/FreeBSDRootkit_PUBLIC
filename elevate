@@ -1,0 +1,3 @@
+cc elevate.c
+sys_num=$(dmesg | grep -Po "System call loaded at offset: \K[0-9]*")
+./a.out $sys_num

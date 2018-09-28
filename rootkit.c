@@ -76,4 +76,4 @@ static moduledata_t rootkit_mod = {
 	&rootkit_func_mod
 };
 
-DECLARE_MODULE(rootkit_func, rootkit_mod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);
+DECLARE_MODULE(rootkit, rootkit_mod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);

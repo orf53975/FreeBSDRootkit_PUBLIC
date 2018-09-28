@@ -1,4 +1,5 @@
 #!/bin/sh
 cc elevate.c
-sys_num=$(dmesg | grep -Po "System call loaded at offset: \K[0-9]*")
+sys_num=$(dmesg | grep -E "system call loaded at offset" | tail -1 | grep -Eo "[0-9]+")
+echo $sys_num
 ./a.out $sys_num

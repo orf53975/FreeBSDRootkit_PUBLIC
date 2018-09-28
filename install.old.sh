@@ -1,5 +1,4 @@
 #!/bin/sh
-
 clear
 make
 kldunload ./rootkit.ko

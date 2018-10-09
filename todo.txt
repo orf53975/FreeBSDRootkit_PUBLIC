@@ -1,8 +1,9 @@
 ## Todo
-* getdirentries from ls, etc.
+* kldload/kldunload -- DONE: @B3nny
+* getdirentries from ls, etc. -- DONE: @Hooplaa
 * open/read for /proc
 * DKOM: remove us from module linked list
-* chdir
+* chdir - If we need a directory
 
 ### how to view all syscalls
 checksyscall uses kvm_list which takes a names and retriels system table

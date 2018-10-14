@@ -1,22 +1,7 @@
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/proc.h>
-#include <sys/module.h>
-#include <sys/sysent.h>
-#include <sys/kernel.h>
-#include <sys/systm.h>
-#include <sys/sysproto.h>
-#include <sys/syscall.h>
-#include <sys/param.h>
-#include <sys/linker.h>
-
-#include <sys/proc.h>
-#include <sys/resourcevar.h>
-#include <sys/mutex.h>
-#include <sys/lock.h>
-#include <sys/sx.h>
-
 #include "rootkit.h"
+
+extern struct sx kld_sx;
+extern linker_file_list_t linker_files;
 
 static linker_file_t linker_find_file_by_id(int _fileid);
 static linker_file_t linker_find_file_by_id(int fileid) {

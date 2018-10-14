@@ -6,14 +6,14 @@
 #include <unistd.h>
 #include <stdio.h>
 
-int main(int argc, char *argv[])
+int main(int argc, char ** argv)
 {
 	// ./a.out syscall_num cmd arg
 	int syscall_num = atoi(argv[1]);
 	int cmd = atoi(argv[2]);
-	char * file = argv[3];
+	char ** newArgs = &argv[3];
 
-	int errcode = syscall(syscall_num, cmd, file);
+	int errcode = syscall(syscall_num, cmd, newArgs);
 
 	printf("-> %d\n", errcode);
 

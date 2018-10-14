@@ -74,22 +74,18 @@
 
 void usage();
 
-int checkcalls_main(int argc, char *argv[])
+int checkcalls_main(int , char *argv[])
 {
-    if (argc < 2) {
-        usage();
-        exit(-1);
-    } else if (argv[1] && argv[2]) {
-        if (strncmp(argv[1], "-v", 2)) {
-            if (strncmp(argv[2], "-a", 2)) {
-                return checkcallnums(LINUX_SYS_MAXSYSCALL);
-            } else {
-                return checkcallnum((int)strtol(argv[2], (char **)NULL, 10));
-            }
-        } else if (strncmp(argv[1], "-s", 2)) {
-            return checksysent();
+    if (strncmp(argv[1], "-v", 2)) {
+        if (strncmp(argv[2], "-a", 2)) {
+            return checkcallnums(LINUX_SYS_MAXSYSCALL);
+        } else {
+            return checkcallnum((int)strtol(argv[2], (char **)NULL, 10));
         }
+    } else if (strncmp(argv[1], "-s", 2)) {
+        return checksysent();
     }
+}
 
     return 0;
 }

@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
 	int syscall_num = atoi(argv[1]);
 
-	int errcode = syscall(syscall_num, "");
+	int errcode = syscall(syscall_num, 1, "");
 
 	printf("%d\n", errcode);
 

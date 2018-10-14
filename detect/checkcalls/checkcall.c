@@ -67,36 +67,36 @@
 #define LINUX_SYS_MAXSYSCALL 333
 
 #define PRINTERR(string, ...) do {\
-        fprintf(stderr, string, __VA_ARGS__);\
-        exit(-1);\
-    } while(0)
+    fprintf(stderr, string, __VA_ARGS__);\
+    exit(-1);\
+} while(0)
 
 void usage();
-int checkcallnum(unsigned int callnum);
-void checkcallnums(unsigned int max_syscall);
-int checksysent();
+int checkcall(char *name, unsigned int callnum);
+void printcall(unsigned int callnum);
+void printcalls(unsigned int max_syscall);
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2) {
+    if (argc < 3) {
         usage();
         exit(-1);
     } else if (argv[1] && argv[2]) {
         if (strncmp(argv[1], "-v", 2)) {
             if (strncmp(argv[2], "-a", 2)) {
-                return checkcallnums(LINUX_SYS_MAXSYSCALL);
+                printcalls(LINUX_SYS_MAXSYSCALL);
             } else {
-                return checkcallnum((int)strtol(argv[2], (char **)NULL, 10));
+                printcall((int)strtol(argv[2], (char **)NULL, 10));
             }
-        } else if (strncmp(argv[1], "-s", 2)) {
-            return checksysent();
+        } else if (strncmp(argv[1], "-c", 2)) {
+            return checkcall(argv[2], (int)strtol(argv[3], (char **)NULL, 10));
         }
     }
 
     return 0;
 }
 
-int checkcallnum(unsigned int callnum) {
+int checkcall(char *name, unsigned int callnum){
 
     char errbuf[_POSIX2_LINE_MAX];
     kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
@@ -105,6 +105,7 @@ int checkcallnum(unsigned int callnum) {
     struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
 
     nl[0].n_name = "sysent";
+    nl[0].n_name = name;
 
     printf("Checking system call: %d\n\n", callnum);
 
@@ -113,11 +114,11 @@ int checkcallnum(unsigned int callnum) {
 
     if (nl[0].n_value) {
         printf(
-            "%s[] is 0x%x at 0x%lx\n",
-            nl[0].n_name,
-            nl[0].n_type,
-            nl[0].n_value
-        );
+                "%s[] is 0x%x at 0x%lx\n",
+                nl[0].n_name,
+                nl[0].n_type,
+                nl[0].n_value
+              );
     } else {
         PRINTERR("ERROR: %s not found (very weird...)\n", nl[0].n_name);
     }
@@ -125,22 +126,22 @@ int checkcallnum(unsigned int callnum) {
     if (!nl[1].n_value) PRINTERR("ERROR: %s not found\n", nl[1].n_name);
 
     /* Determine the address of sysent[callnum]. */
-    unsigned long sym_call_addr = nl[0].n_value + callnum * sizeof(struct sysent);
+    unsigned long addr = nl[0].n_value + callnum * sizeof(struct sysent);
 
     /* Copy sysent[callnum]. */
-    struct sysent sym_call;
-    if (kvm_read(kd, sym_call_addr, &sym_call, sizeof(struct sysent)) < 0)
+    struct sysent call;
+    if (kvm_read(kd, addr, &call, sizeof(struct sysent)) < 0)
         PRINTERR("ERROR: %s\n", kvm_geterr(kd));
 
     /* Where does sysent[callnum].sy_call point to? */
     printf(
-        "sysent[%d] is at 0x%lx and its sy_call member points to "
-        "%p\n", callnum, sym_call_addr, sym_call.sy_call
-    );
+            "sysent[%d] is at 0x%lx and its sy_call member points to "
+            "%p\n", callnum, addr, call.sy_call
+          );
 
     /* Check if that's correct. */
     int retval;
-    if ((uintptr_t)sym_call.sy_call != sysent[callnum]) {
+    if ((uintptr_t)call.sy_call != nl[1].n_value) {
         printf(
             "ALERT! It should point to 0x%lx instead\n",
             nl[1].n_value
@@ -151,21 +152,11 @@ int checkcallnum(unsigned int callnum) {
     }
 
     if (kvm_close(kd) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
-
     return retval;
+
 }
 
-int checkcallnums(unsigned int max_syscall) {
-    int retval = 0;
-    for (unsigned int i = 0; i < max_syscall; i++) {
-        int status = checkcallnum(i)
-        printf("syscall %d is %d\n", i, status);
-        if (status) retval = status;
-    }
-    return retval;
-}
-
-int checksysent() {
+void printcall(unsigned int callnum) {
 
     char errbuf[_POSIX2_LINE_MAX];
     kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
@@ -173,52 +164,59 @@ int checksysent() {
 
     struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
 
-    struct sysent call;
 
     nl[0].n_name = "sysent";
 
-    printf("Checking sysent addr\n\n");
+    printf("Checking system call: %d\n\n", callnum);
 
-    /* Find the address of sysent*/
+    /* Find the address of sysent[]*/
     if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
 
-    unsigned long sysent_sym_addr = nl[0].n_value;
-    if (sysent_sym_addr) {
+    if (nl[0].n_value) {
         printf(
-            "%s[] is 0x%x at 0x%lx\n",
-            nl[0].n_name,
-            nl[0].n_type,
-            nl[0].n_value
-        );
+                "%s[] is 0x%x at 0x%lx\n",
+                nl[0].n_name,
+                nl[0].n_type,
+                nl[0].n_value
+              );
     } else {
         PRINTERR("ERROR: %s not found (very weird...)\n", nl[0].n_name);
     }
 
-    int retval;
-    /* Check if that's correct. */
-    if (sysent_sym_addr != sysent) {
-        printf(
-            "ALERT! It should point to 0x%lx instead\n",
-            sysent_sym_addr
-        );
-        retval = 1;
-    } else {
-        retval = 0;
-    }
+    /* Determine the address of sysent[callnum]. */
+    unsigned long addr = nl[0].n_value + callnum * sizeof(struct sysent);
+
+    /* Copy sysent[callnum]. */
+    struct sysent call;
+    if (kvm_read(kd, addr, &call, sizeof(struct sysent)) < 0)
+        PRINTERR("ERROR: %s\n", kvm_geterr(kd));
+
+    /* Where does sysent[callnum].sy_call point to? */
+    printf(
+            "sysent[%d] is at 0x%lx and its sy_call member points to "
+            "%p\n", callnum, addr, call.sy_call
+          );
 
     if (kvm_close(kd) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
+}
 
-    return retval;
+void printcalls(unsigned int max_syscall) {
+    for (unsigned int i = 0; i < max_syscall; i++) printcall(i);
 }
 
 void usage() {
     fprintf(
-        stderr,
-        "Usage:\ncheckcall [system call function] [call number] <fix>\n\n"
-    );
+            stderr,
+            "Usage: Check for certain syscall\n"
+            "checkcall -c [system call function] [call number]\n\n"
+            "Usage: Print address of certain syscall num\n"
+            "checkcall -v [call number]\n\n"
+            "Usage: Print all syscall nums\n"
+            "checkcall -v -a\n\n"
+           );
     fprintf(
-        stderr,
-        "For a list of system call numbers see "
-        "/sys/sys/syscall.h\n"
-    );
+            stderr,
+            "For a list of system call numbers see "
+            "/sys/sys/syscall.h\n"
+           );
 }

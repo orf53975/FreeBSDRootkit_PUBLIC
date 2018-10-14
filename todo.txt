@@ -13,6 +13,8 @@ symbols associated with every syscall to find all syscalls, and subsequently
 detect and hide.
 hooking kldsym so you can't find it.
 https://www.freebsd.org/cgi/man.cgi?query=kvm_nlist&sektion=3&apropos=0&manpath=freebsd
+* make it run as a kernel module
+* doe the checkcalls using syscalls.h
 
 ## bonus
 write and read for logging

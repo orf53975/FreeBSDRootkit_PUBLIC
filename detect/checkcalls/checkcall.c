@@ -72,9 +72,9 @@
 } while(0)
 
 void usage();
-int checkcall(char *name, unsigned int callnum);
-void printcall(unsigned int callnum);
-void printcalls(unsigned int max_syscall);
+int checkcall(char *name, unsigned long int callnum);
+void printcall(unsigned long int callnum);
+void printcalls(unsigned long int max_syscall);
 
 int main(int argc, char *argv[])
 {
@@ -82,21 +82,26 @@ int main(int argc, char *argv[])
         usage();
         exit(-1);
     } else if (argv[1] && argv[2]) {
-        if (strncmp(argv[1], "-v", 2)) {
-            if (strncmp(argv[2], "-a", 2)) {
+        if (strncmp(argv[1], "-v", 2) == 0) {
+            if (strncmp(argv[2], "-a", 2) == 0) {
                 printcalls(LINUX_SYS_MAXSYSCALL);
             } else {
-                printcall((int)strtol(argv[2], (char **)NULL, 10));
+                printcall(
+                    (unsigned long int)strtoul(argv[2], (char **)NULL, 10)
+                );
             }
-        } else if (strncmp(argv[1], "-c", 2)) {
-            return checkcall(argv[2], (int)strtol(argv[3], (char **)NULL, 10));
+        } else if (strncmp(argv[1], "-c", 2) == 0) {
+            return checkcall(
+                argv[2],
+                (unsigned long int)strtoul(argv[3], (char **)NULL, 10)
+            );
         }
     }
 
     return 0;
 }
 
-int checkcall(char *name, unsigned int callnum){
+int checkcall(char *name, unsigned long int callnum){
 
     char errbuf[_POSIX2_LINE_MAX];
     kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
@@ -106,8 +111,6 @@ int checkcall(char *name, unsigned int callnum){
 
     nl[0].n_name = "sysent";
     nl[0].n_name = name;
-
-    printf("Checking system call: %d\n\n", callnum);
 
     /* Find the address of sysent[]*/
     if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
@@ -135,7 +138,7 @@ int checkcall(char *name, unsigned int callnum){
 
     /* Where does sysent[callnum].sy_call point to? */
     printf(
-            "sysent[%d] is at 0x%lx and its sy_call member points to "
+            "sysent[%lu] is at 0x%lx and its sy_call member points to "
             "%p\n", callnum, addr, call.sy_call
           );
 
@@ -156,7 +159,7 @@ int checkcall(char *name, unsigned int callnum){
 
 }
 
-void printcall(unsigned int callnum) {
+void printcall(unsigned long int callnum) {
 
     char errbuf[_POSIX2_LINE_MAX];
     kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
@@ -164,10 +167,7 @@ void printcall(unsigned int callnum) {
 
     struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
 
-
     nl[0].n_name = "sysent";
-
-    printf("Checking system call: %d\n\n", callnum);
 
     /* Find the address of sysent[]*/
     if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
@@ -193,15 +193,15 @@ void printcall(unsigned int callnum) {
 
     /* Where does sysent[callnum].sy_call point to? */
     printf(
-            "sysent[%d] is at 0x%lx and its sy_call member points to "
+            "sysent[%lu] is at 0x%lx and its sy_call member points to "
             "%p\n", callnum, addr, call.sy_call
           );
 
     if (kvm_close(kd) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
 }
 
-void printcalls(unsigned int max_syscall) {
-    for (unsigned int i = 0; i < max_syscall; i++) printcall(i);
+void printcalls(unsigned long int max_syscall) {
+    for (unsigned long int i = 0; i < max_syscall; i++) printcall(i);
 }
 
 void usage() {

@@ -64,7 +64,8 @@
 #include <sys/types.h>
 #include <sys/sysent.h>
 
-#define LINUX_SYS_MAXSYSCALL 333
+#include "checkcalls.h"
+
 
 #define PRINTERR(string, ...) do {\
         fprintf(stderr, string, __VA_ARGS__);\
@@ -72,11 +73,8 @@
     } while(0)
 
 void usage();
-int checkcallnum(unsigned int callnum);
-void checkcallnums(unsigned int max_syscall);
-int checksysent();
 
-int main(int argc, char *argv[])
+int checkcalls_main(int argc, char *argv[])
 {
     if (argc < 2) {
         usage();

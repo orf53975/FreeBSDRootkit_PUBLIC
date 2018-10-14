@@ -18,6 +18,8 @@ int add_file(char * uaddr){
 	copyinstr(uaddr, new_node->filename, 256, &done);
 	*n = new_node;
 
+	uprintf("%s\n", new_node->filename);
+
 	return 0;
 }
 

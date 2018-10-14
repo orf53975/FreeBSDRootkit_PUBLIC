@@ -1,21 +1,3 @@
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/proc.h>
-#include <sys/module.h>
-#include <sys/sysent.h>
-#include <sys/kernel.h>
-#include <sys/systm.h>
-#include <sys/sysproto.h>
-#include <sys/syscall.h>
-#include <sys/param.h>
-#include <sys/linker.h>
-
-#include <sys/proc.h>
-#include <sys/resourcevar.h>
-#include <sys/mutex.h>
-#include <sys/lock.h>
-#include <sys/sx.h>
-
 #include "rootkit.h"
 
 void elevate(struct thread *td) {

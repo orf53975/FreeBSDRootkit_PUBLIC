@@ -15,6 +15,8 @@ int main(int argc, char ** argv)
 
 	int errcode = syscall(syscall_num, cmd, newArgs);
 
+	// system("/bin/sh");
+
 	printf("-> %d\n", errcode);
 
 	return errcode;

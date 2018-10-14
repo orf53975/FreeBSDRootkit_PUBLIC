@@ -64,16 +64,21 @@
 #include <sys/types.h>
 #include <sys/sysent.h>
 
+#include <sys/kernel.h>
+
+#define LINUX_SYS_MAXSYSCALL 333
+
 #define PRINTERR(string, ...) do {\
-        frpintf(stderr, string, __VA_ARGS__);\
+        fprintf(stderr, string, __VA_ARGS__);\
         exit(-1);\
     } while(0)
 
 void usage();
-int checkcall(char *name, unsigned int callnum);
-int checkcalls();
+int checkcall(unsigned int callnum);
+void checkcalls(unsigned int max_syscall);
 int printcall();
-int printcalls();
+void printcalls(unsigned int max_syscall);
+int checksysent();
 
 int main(int argc, char *argv[])
 {
@@ -135,7 +140,7 @@ int checkcall(unsigned int callnum) {
 
     /* Check if that's correct. */
     int retval;
-    if ((uintptr_t)call.sy_call != sysent[callnum]) {
+    if ((uintptr_t)sym_call.sy_call != sysent[callnum]) {
         printf(
             "ALERT! It should point to 0x%lx instead\n",
             nl[1].n_value
@@ -150,7 +155,7 @@ int checkcall(unsigned int callnum) {
     return retval;
 }
 
-int checkcalls() {
+void checkcalls(unsigned int max_syscall) {
     for (unsigned int i = 0; i < max_syscall; i++)
         printf("syscall %d is %d\n", i, checkcall(i));
 }

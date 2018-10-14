@@ -1,9 +1,9 @@
-CC=gcc
+CC=cc
 
-default: checkcall
+default: checkcalls
 
 clean:
-	rm -f checkcall
+	rm -f checkcalls
 
-checkcall:
-	$(CC) -o checkcall checkcall.c -lkvm
+checkcalls:
+	$(CC) -o checkcalls checkcalls.c -lkvm

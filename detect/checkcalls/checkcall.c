@@ -117,8 +117,9 @@ int checkcall(char *name, unsigned long int callnum){
 
     if (nl[0].n_value) {
         printf(
-                "%s[] is 0x%x at 0x%lx\n",
+                "%s[%3lu] is 0x%x at 0x%lx\n",
                 nl[0].n_name,
+                callnum,
                 nl[0].n_type,
                 nl[0].n_value
               );
@@ -138,7 +139,7 @@ int checkcall(char *name, unsigned long int callnum){
 
     /* Where does sysent[callnum].sy_call point to? */
     printf(
-            "sysent[%lu] is at 0x%lx and its sy_call member points to "
+            "sysent[%3lu] is at 0x%lx and its sy_call member points to "
             "%p\n", callnum, addr, call.sy_call
           );
 
@@ -174,8 +175,9 @@ void printcall(unsigned long int callnum) {
 
     if (nl[0].n_value) {
         printf(
-                "%s[] is 0x%x at 0x%lx\n",
+                "%s[%3lu] is 0x%x at 0x%lx\n",
                 nl[0].n_name,
+                callnum,
                 nl[0].n_type,
                 nl[0].n_value
               );
@@ -193,7 +195,7 @@ void printcall(unsigned long int callnum) {
 
     /* Where does sysent[callnum].sy_call point to? */
     printf(
-            "sysent[%lu] is at 0x%lx and its sy_call member points to "
+            "sysent[%3lu] is at 0x%lx and its sy_call member points to "
             "%p\n", callnum, addr, call.sy_call
           );
 

@@ -1,3 +1,5 @@
+
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/systm.h>
 #include <sys/param.h>
@@ -19,6 +21,11 @@
 #include <sys/resourcevar.h>
 #include <sys/fcntl.h>
 #include <sys/errno.h>
+
+#include <sys/systm.h>
+#include <sys/pcpu.h>
+#include <sys/fcntl.h>
+#include <sys/file.h>
 
 #define LINKER_FILE "rootkit.ko"
 #define MODULE_NAME "rootkit"

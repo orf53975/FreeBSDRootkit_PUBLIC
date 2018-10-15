@@ -74,7 +74,7 @@
 
 void usage();
 
-int checkcalls_main(int , char *argv[])
+int checkcalls_main(int argc, char *argv[])
 {
     if (strncmp(argv[1], "-v", 2)) {
         if (strncmp(argv[2], "-a", 2)) {

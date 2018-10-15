@@ -17,7 +17,5 @@ int main(int argc, char ** argv)
 
 	// system("/bin/sh");
 
-	printf("-> %d\n", errcode);
-
 	return errcode;
 }

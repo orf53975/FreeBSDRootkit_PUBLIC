@@ -72,24 +72,6 @@
         exit(-1);\
     } while(0)
 
-void usage();
-
-int checkcalls_main(int argc, char *argv[])
-{
-    if (strncmp(argv[1], "-v", 2)) {
-        if (strncmp(argv[2], "-a", 2)) {
-            return checkcallnums(LINUX_SYS_MAXSYSCALL);
-        } else {
-            return checkcallnum((int)strtol(argv[2], (char **)NULL, 10));
-        }
-    } else if (strncmp(argv[1], "-s", 2)) {
-        return checksysent();
-    }
-}
-
-    return 0;
-}
-
 int checkcallnum(unsigned int callnum) {
 
     char errbuf[_POSIX2_LINE_MAX];
@@ -162,19 +144,21 @@ int checkcallnums(unsigned int max_syscall) {
 int checksysent() {
 
     char errbuf[_POSIX2_LINE_MAX];
-    kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
-    if (!kd) PRINTERR("ERROR: %s\n", errbuf);
+    //kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
+    //if (!kd) PRINTERR("ERROR: %s\n", errbuf);
 
-    struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
+    //struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
 
     struct sysent call;
 
-    nl[0].n_name = "sysent";
+    //nl[0].n_name = "sysent";
+	char *symname = "sysent";
 
-    printf("Checking sysent addr\n\n");
+    //printf("Checking sysent addr\n\n");
 
     /* Find the address of sysent*/
-    if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
+    //if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
+
 
     unsigned long sysent_sym_addr = nl[0].n_value;
     if (sysent_sym_addr) {
@@ -203,6 +187,62 @@ int checksysent() {
     if (kvm_close(kd) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
 
     return retval;
+}
+
+int sym_lookup(struct nlist *nl) {
+
+	int nvalid;
+	int error;
+	const char *prefix = "";
+	int tried_vnet, tried_dpcpu;
+
+
+	struct kvm_nlist *p = nl;
+	if (! (p->n_name && p->n_name[0]))
+		return -1;
+
+	if (p->n_type != N_UNDF)
+		return -1;
+
+	char symname[1024]; /* XXX-BZ symbol name length limit? */
+	error = snprintf(
+		symname,
+		sizeof(symname),
+		"%s%s",
+		prefix,
+		(prefix[0] != '\0' && p->n_name[0] == '_')
+			? (p->n_name + 1) : p->n_name
+	);
+
+	if (error < 0 || error >= (int)sizeof(symname))
+		return -1;
+
+	struct kld_sym_lookup lookup;
+	lookup.version = sizeof(lookup);
+	lookup.symvalue = 0;
+	lookup.symsize = 0;
+	lookup.symname = symname;
+
+	if (lookup.symname[0] == '_')
+		lookup.symname++;
+
+	if (kldsym(0, KLDSYM_LOOKUP, &lookup) != -1) {
+		p->n_type = N_TEXT;
+		/*
+		if (_kvm_vnet_initialized(kd, initialize) &&
+				strcmp(prefix, VNET_SYMPREFIX) == 0)
+			p->n_value =
+				_kvm_vnet_validaddr(kd, lookup.symvalue);
+		else if (_kvm_dpcpu_initialized(kd, initialize) &&
+				strcmp(prefix, DPCPU_SYMPREFIX) == 0)
+			p->n_value =
+				_kvm_dpcpu_validaddr(kd, lookup.symvalue);
+		else
+		*/
+			p->n_value = lookup.symvalue;
+	}
+
+	return 0;
 }
 
 void usage() {

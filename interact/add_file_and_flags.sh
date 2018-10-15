@@ -1,5 +1,5 @@
-cc syscall.c
-./a.out 210 2 testfile.txt
-./a.out 210 5 testfile.txt 255
+cc syscall.c -o syscall
+./syscall 210 2 testfile.txt
+./syscall 210 4 testfile.txt ff
 cc open_test.c
 ktrace ./a.out

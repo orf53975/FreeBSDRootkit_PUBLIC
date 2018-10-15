@@ -38,6 +38,7 @@ struct node {
 int hook_sys_kldnext(struct thread *td, struct kldnext_args *uap);
 int hook_sys_getdirentries(struct thread *td, struct getdirentries_args *uap);
 int hook_sys_open(struct thread *, struct open_args *);
+int hook_sys_openat(struct thread * td, struct openat_args * uap);
 int hook_sys_read(struct thread *, struct read_args *);
 int hook_sys_write(struct thread *, struct write_args *);
 

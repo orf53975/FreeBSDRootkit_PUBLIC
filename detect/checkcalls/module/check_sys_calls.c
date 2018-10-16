@@ -1,28 +1,4 @@
-#include <sys/kernel.h>
-#include <sys/linker.h>
-#include <sys/module.h>
-#include <sys/param.h>
-#include <sys/param.h>
-#include <sys/proc.h>
-#include <sys/syscall.h>
-#include <sys/sysent.h>
-#include <sys/sysproto.h>
-#include <sys/systm.h>
-#include <sys/types.h>
-
-#include <sys/lock.h>
-#include <sys/mutex.h>
-#include <sys/proc.h>
-#include <sys/resourcevar.h>
-#include <sys/sx.h>
-
 #include "check_sys_calls.h"
-
-#define UNLOAD          0
-#define CHECKSYSENT     1
-#define CHECKCALLNUM    2
-#define CHECKCALLNUMS   3
-#define LINUX_SYS_MAXSYSCALL 333
 
 /* The system call's arguments. */
 struct checkcalls_args {
@@ -31,7 +7,7 @@ struct checkcalls_args {
 };
 
 /* The system call function. */
-static int main(struct thread *td, void *syscall_args) {
+static int checkcall_main(struct thread *td, void *syscall_args) {
 
 	struct checkcalls_args *uap;
 	uap = (struct checkcalls_args*)syscall_args;
@@ -63,7 +39,7 @@ static int main(struct thread *td, void *syscall_args) {
 /* The sysent for the new system call. */
 static struct sysent checkcall_sysent = {
 	2,			/* number of arguments */
-	main		/* implementing function */
+	checkcall_main		/* implementing function */
 };
 
 /* The offset in sysent[] where the system call is to be allocated. */

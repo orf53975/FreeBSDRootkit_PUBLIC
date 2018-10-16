@@ -54,23 +54,6 @@
  * SUCH DAMAGE.
  */
 
-#include <fcntl.h>
-#include <kvm.h>
-#include <limits.h>
-#include <nlist.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/sysent.h>
-
-#include "checkcalls.h"
-#include <sys/linker.h>
-
-#define PRINTERR(string, ...) do {\
-        fprintf(stderr, string, __VA_ARGS__);\
-        exit(-1);\
-    } while(0)
 
 int checkcallnum(unsigned int callnum) {
 
@@ -78,7 +61,7 @@ int checkcallnum(unsigned int callnum) {
     //kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
     //if (!kd) PRINTERR("ERROR: %s\n", errbuf);
 
-    //struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
+    //struct kvm_nlist nl[] = { { NULL }, { NULL }, { NULL }, };
 
     //nl[0].n_name = "sysent";
 
@@ -135,13 +118,12 @@ int checkcallnum(unsigned int callnum) {
 int checkcallnums(unsigned int max_syscall) {
     int retval = 0;
     for (unsigned int i = 0; i < max_syscall; i++) {
-        int status = checkcallnum(i)
+        int status = checkcallnum(i);
         printf("syscall %d is %d\n", i, status);
         if (status) retval = status;
     }
     return retval;
 }
-*/
 
 int checksysent() {
 
@@ -149,7 +131,7 @@ int checksysent() {
     //kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
     //if (!kd) PRINTERR("ERROR: %s\n", errbuf);
 
-    struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
+    struct kvm_nlist nl[] = { { NULL }, { NULL }, { NULL }, };
     nl[0].n_name = "sysent";
 
     //printf("Checking sysent addr\n\n");
@@ -187,7 +169,7 @@ int checksysent() {
     return retval;
 }
 
-int sym_lookup(struct nlist *nl) {
+int sym_lookup(struct kvm_nlist *nl) {
 
 
 	struct kvm_nlist *p = nl;
@@ -239,6 +221,7 @@ int sym_lookup(struct nlist *nl) {
 	return 0;
 }
 
+/*
 void usage() {
     fprintf(
         stderr,
@@ -250,3 +233,4 @@ void usage() {
         "/sys/sys/syscall.h\n"
     );
 }
+*/

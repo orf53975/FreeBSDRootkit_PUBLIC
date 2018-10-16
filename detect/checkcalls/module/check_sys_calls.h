@@ -18,20 +18,51 @@
 #include <sys/mutex.h>
 #include <sys/nlist.h> //
 #include <sys/param.h>
-//#include <sys/pcpu.h>
+#include <sys/pcpu.h>
 #include <sys/proc.h>
 #include <sys/resourcevar.h>
 //#include <sys/stdio.h>
 //#include <sys/stdlib.h>
 //#include <sys/string.h>
-//#include <sys/stat.h>
+#include <sys/stat.h>
 #include <sys/sx.h>
 #include <sys/syscall.h>
-//#include <sys/syscallsubr.h>
+#include <sys/syscallsubr.h>
 #include <sys/sysent.h>
 #include <sys/sysproto.h>
 #include <sys/systm.h>
 #include <sys/types.h>
+
+// literally everything
+/*
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/systm.h>
+#include <sys/param.h>
+#include <sys/proc.h>
+#include <sys/module.h>
+#include <sys/sysent.h>
+#include <sys/kernel.h>
+#include <sys/systm.h>
+#include <sys/syscall.h>
+#include <sys/syscallsubr.h>
+#include <sys/sysproto.h>
+#include <sys/malloc.h>
+#include <sys/linker.h>
+#include <sys/lock.h>
+#include <sys/mutex.h>
+#include <sys/sx.h>
+#include <sys/dirent.h>
+#include <sys/cdefs.h>
+#include <sys/resourcevar.h>
+#include <sys/fcntl.h>
+#include <sys/errno.h>
+
+#include <sys/systm.h>
+#include <sys/pcpu.h>
+#include <sys/fcntl.h>
+#include <sys/file.h>
+*/
 
 #define PRINTERR(string, ...) do {\
         printf(string, __VA_ARGS__);\

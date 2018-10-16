@@ -127,48 +127,49 @@ int checkcallnums(unsigned int max_syscall) {
 
 int checksysent() {
 
-    //char errbuf[_POSIX2_LINE_MAX];
-    //kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
-    //if (!kd) PRINTERR("ERROR: %s\n", errbuf);
+    ////char errbuf[_POSIX2_LINE_MAX];
+    ////kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
+    ////if (!kd) PRINTERR("ERROR: %s\n", errbuf);
 
-    struct kvm_nlist nl[] = { { NULL }, { NULL }, { NULL }, };
-    nl[0].n_name = "sysent";
+    //struct kvm_nlist nl[] = { { NULL }, { NULL }, { NULL }, };
+    //nl[0].n_name = "sysent";
 
-    //printf("Checking sysent addr\n\n");
+    ////printf("Checking sysent addr\n\n");
 
-    /* Find the address of sysent*/
-    //if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
+    ///* Find the address of sysent*/
+    ////if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
 
 
-    struct sysent sysent_sym_addr[] = nl[0].n_value;
-    if (sysent_sym_addr) {
-        printf(
-            "%s[] is 0x%x at 0x%p\n",
-            nl[0].n_name,
-            nl[0].n_type,
-            nl[0].n_value
-        );
-    } else {
-        PRINTERR("ERROR: %s not found (very weird...)\n", nl[0].n_name);
-    }
+    //struct sysent sysent_sym_addr[] = nl[0].n_value;
+    //if (sysent_sym_addr) {
+    //    printf(
+    //        "%s[] is 0x%x at 0x%p\n",
+    //        nl[0].n_name,
+    //        nl[0].n_type,
+    //        nl[0].n_value
+    //    );
+    //} else {
+    //    PRINTERR("ERROR: %s not found (very weird...)\n", nl[0].n_name);
+    //}
 
     int retval = 0;
-    /* Check if that's correct. */
-    if (sysent_sym_addr != sysent) {
-        printf(
-            "ALERT! It should point to 0x%lx instead\n",
-            sysent_sym_addr
-        );
-        retval = 1;
-    } else {
-        retval = 0;
-    }
+    ///* Check if that's correct. */
+    //if (sysent_sym_addr != sysent) {
+    //    printf(
+    //        "ALERT! It should point to 0x%lx instead\n",
+    //        sysent_sym_addr
+    //    );
+    //    retval = 1;
+    //} else {
+    //    retval = 0;
+    //}
 
-    //if (kvm_close(kd) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
+    ////if (kvm_close(kd) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
 
     return retval;
 }
 
+/*
 int sym_lookup(struct kvm_nlist *nl) {
 
 
@@ -179,7 +180,7 @@ int sym_lookup(struct kvm_nlist *nl) {
 	if (p->n_type != N_UNDF)
 		return -1;
 
-	char symname[1024]; /* XXX-BZ symbol name length limit? */
+	char symname[1024]; //XXX-BZ symbol name length limit?
 	const char *prefix = "";
 	int error = snprintf(
 		symname,
@@ -204,7 +205,6 @@ int sym_lookup(struct kvm_nlist *nl) {
 
 	if (kldsym(0, KLDSYM_LOOKUP, &lookup) != -1) {
 		p->n_type = N_TEXT;
-		/*
 		if (_kvm_vnet_initialized(kd, initialize) &&
 				strcmp(prefix, VNET_SYMPREFIX) == 0)
 			p->n_value =
@@ -214,12 +214,12 @@ int sym_lookup(struct kvm_nlist *nl) {
 			p->n_value =
 				_kvm_dpcpu_validaddr(kd, lookup.symvalue);
 		else
-		*/
 			p->n_value = lookup.symvalue;
 	}
 
 	return 0;
 }
+*/
 
 /*
 void usage() {

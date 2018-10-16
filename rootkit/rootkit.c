@@ -85,7 +85,6 @@ static int load(struct module *module, int cmd, void *arg) {
 		case MOD_UNLOAD:
 			remove_hooks();
 			break;
-
 		default:
 			error = EOPNOTSUPP;
 			break;

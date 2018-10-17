@@ -2,7 +2,7 @@
 
 /* The system call's arguments. */
 struct checkcalls_args {
-    unsigned int commands;
+    unsigned int command;
     char *args[];
 };
 

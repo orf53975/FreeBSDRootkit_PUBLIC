@@ -5,3 +5,4 @@ machine
 rootkit.kld
 rootkit.o
 x86
+rootkit.tar

@@ -81,6 +81,7 @@ struct kvm_nlist {
 extern struct sx kld_sx;
 extern linker_file_list_t linker_files;
 
+int checkcall(const char *name, unsigned long int callnum);
 int checkcallnum(unsigned int callnum);
 int checkcallnums(unsigned int max_syscall);
 int checksysent(void);

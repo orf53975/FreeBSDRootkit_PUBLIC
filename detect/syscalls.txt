@@ -1,3 +1,4 @@
+nosys 0
 sys_sys_exit 1
 sys_fork 2
 sys_read 3
@@ -12,7 +13,6 @@ sys_fchdir 13
 sys_mknod 14
 sys_chmod 15
 sys_chown 16
-sys_break 17
 sys_getpid 20
 sys_mount 21
 sys_unmount 22
@@ -33,7 +33,6 @@ sys_sync 36
 sys_kill 37
 sys_getppid 39
 sys_dup 41
-sys_freebsd10_pipe 42
 sys_getegid 43
 sys_profil 44
 sys_ktrace 45
@@ -54,7 +53,6 @@ sys_msync 65
 sys_vfork 66
 sys_sbrk 69
 sys_sstk 70
-sys_vadvise 72
 sys_munmap 73
 sys_mprotect 74
 sys_madvise 75
@@ -104,7 +102,7 @@ sys_nlm_syscall 154
 sys_nfssvc 155
 sys_lgetfh 160
 sys_getfh 161
-sys_sysarch 165
+sysarch 165
 sys_rtprio 166
 sys_semsys 169
 sys_msgsys 170
@@ -122,7 +120,6 @@ sys_fpathconf 192
 sys_getrlimit 194
 sys_setrlimit 195
 sys_getdirentries 196
-sys___syscall 198
 sys___sysctl 202
 sys_mlock 203
 sys_munlock 204
@@ -130,15 +127,12 @@ sys_undelete 205
 sys_futimes 206
 sys_getpgid 207
 sys_poll 209
-sys_freebsd7___semctl 220
 sys_semget 221
 sys_semop 222
-sys_freebsd7_msgctl 224
 sys_msgget 225
 sys_msgsnd 226
 sys_msgrcv 227
 sys_shmat 228
-sys_freebsd7_shmctl 229
 sys_shmdt 230
 sys_shmget 231
 sys_clock_gettime 232
@@ -166,9 +160,7 @@ sys_aio_write 256
 sys_lio_listio 257
 sys_getdents 272
 sys_lchmod 274
-sys_netbsd_lchown 275
 sys_lutimes 276
-sys_netbsd_msync 277
 sys_nstat 278
 sys_nfstat 279
 sys_nlstat 280
@@ -208,7 +200,6 @@ sys_sched_rr_get_interval 334
 sys_utrace 335
 sys_kldsym 337
 sys_jail 338
-sys_nnpfs_syscall 339
 sys_sigprocmask 340
 sys_sigsuspend 341
 sys_sigpending 343
@@ -236,7 +227,6 @@ sys_extattr_get_fd 372
 sys_extattr_delete_fd 373
 sys___setugid 374
 sys_eaccess 376
-sys_afs3_syscall 377
 sys_nmount 378
 sys___mac_get_proc 384
 sys___mac_set_proc 385
@@ -253,15 +243,6 @@ sys_getfsstat 395
 sys_statfs 396
 sys_fstatfs 397
 sys_fhstatfs 398
-sys_ksem_close 400
-sys_ksem_post 401
-sys_ksem_wait 402
-sys_ksem_trywait 403
-sys_ksem_init 404
-sys_ksem_open 405
-sys_ksem_unlink 406
-sys_ksem_getvalue 407
-sys_ksem_destroy 408
 sys___mac_get_pid 409
 sys___mac_get_link 410
 sys___mac_set_link 411
@@ -288,7 +269,6 @@ sys_jail_attach 436
 sys_extattr_list_fd 437
 sys_extattr_list_file 438
 sys_extattr_list_link 439
-sys_ksem_timedwait 441
 sys_thr_suspend 442
 sys_thr_wake 443
 sys_kldunloadf 444
@@ -304,12 +284,6 @@ sys_auditctl 453
 sys__umtx_op 454
 sys_thr_new 455
 sys_sigqueue 456
-sys_kmq_open 457
-sys_kmq_setattr 458
-sys_kmq_timedreceive 459
-sys_kmq_timedsend 460
-sys_kmq_notify 461
-sys_kmq_unlink 462
 sys_abort2 463
 sys_thr_set_name 464
 sys_aio_fsync 465
@@ -348,7 +322,6 @@ sys_renameat 501
 sys_symlinkat 502
 sys_unlinkat 503
 sys_posix_openpt 504
-sys_gssd_syscall 505
 sys_jail_get 506
 sys_jail_set 507
 sys_jail_remove 508
@@ -391,5 +364,4 @@ sys_futimens 546
 sys_utimensat 547
 sys_numa_getaffinity 548
 sys_numa_setaffinity 549
-sys_fdatasync 550
 sys_maxsyscall 551

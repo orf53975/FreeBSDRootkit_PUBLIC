@@ -54,6 +54,7 @@
  * SUCH DAMAGE.
  */
 
+#include "check_sys_calls.h"
 
 int checkcallnum(unsigned int callnum) {
 
@@ -125,7 +126,7 @@ int checkcallnums(unsigned int max_syscall) {
     return retval;
 }
 
-int checksysent() {
+int checksysent(void) {
 
     ////char errbuf[_POSIX2_LINE_MAX];
     ////kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);

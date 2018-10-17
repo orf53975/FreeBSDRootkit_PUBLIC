@@ -7,6 +7,7 @@
 #define CHECKCALLNUMS   3
 #define LINUX_SYS_MAXSYSCALL 333
 
+/*
 #include <sys/cdefs.h>
 #include <sys/fcntl.h>
 #include <sys/kernel.h>
@@ -32,9 +33,8 @@
 #include <sys/sysproto.h>
 #include <sys/systm.h>
 #include <sys/types.h>
+*/
 
-// literally everything
-/*
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/systm.h>
@@ -62,23 +62,24 @@
 #include <sys/pcpu.h>
 #include <sys/fcntl.h>
 #include <sys/file.h>
-*/
 
 #define PRINTERR(string, ...) do {\
         printf(string, __VA_ARGS__);\
         exit(-1);\
     } while(0)
 
+typedef __uint64_t kvaddr_t;
+
 struct kvm_nlist {
     const char *n_name;
     unsigned char n_type;
     kvaddr_t n_value;
-}
+};
 
 extern struct sx kld_sx;
 extern linker_file_list_t linker_files;
 
 int checkcallnum(unsigned int callnum);
-void checkcallnums(unsigned int max_syscall);
-int checksysent();
+int checkcallnums(unsigned int max_syscall);
+int checksysent(void);
 

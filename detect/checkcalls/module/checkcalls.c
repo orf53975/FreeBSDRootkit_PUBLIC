@@ -213,7 +213,7 @@ int sym_lookup(struct kvm_nlist *nl) {
     args.data = &lookup;
 
 	//if (kldsym(0, KLDSYM_LOOKUP, &lookup) != -1) {
-	if (sys_kldsym(td, &args) != -1) {
+	if (sys_kldsym(curthread, &args) != -1) {
 		p->n_type = N_TEXT;
 		//if (_kvm_vnet_initialized(kd, initialize) &&
 		//		strcmp(prefix, VNET_SYMPREFIX) == 0)

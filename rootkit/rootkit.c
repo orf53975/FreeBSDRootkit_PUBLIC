@@ -74,7 +74,7 @@ static int load(struct module *module, int cmd, void *arg) {
 			int testfd = 0;
 
 			char buf[256] = {0};
-			snprintf(buf, 256, "%d", offset);
+			snprintf(buf, 256, "%d\n", offset);
 
 			filewriter_openlog(curthread, &testfd, LOGFILE);
 			filewriter_writelog(curthread, testfd, buf, strlen(buf));

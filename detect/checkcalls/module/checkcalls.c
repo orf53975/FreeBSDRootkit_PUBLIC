@@ -128,49 +128,49 @@ int checkcallnums(unsigned int max_syscall) {
 
 int checksysent(void) {
 
-    ////char errbuf[_POSIX2_LINE_MAX];
-    ////kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
-    ////if (!kd) PRINTERR("ERROR: %s\n", errbuf);
+    //char errbuf[_POSIX2_LINE_MAX];
+    //kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
+    //if (!kd) PRINTERR("ERROR: %s\n", errbuf);
 
-    //struct kvm_nlist nl[] = { { NULL }, { NULL }, { NULL }, };
-    //nl[0].n_name = "sysent";
+    struct kvm_nlist nl[] = { { NULL }, { NULL }, { NULL }, };
+    nl[0].n_name = "sysent";
 
-    ////printf("Checking sysent addr\n\n");
+    //printf("Checking sysent addr\n\n");
 
-    ///* Find the address of sysent*/
-    ////if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
+    /* Find the address of sysent*/
+    //if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
 
 
-    //struct sysent sysent_sym_addr[] = nl[0].n_value;
-    //if (sysent_sym_addr) {
-    //    printf(
-    //        "%s[] is 0x%x at 0x%p\n",
-    //        nl[0].n_name,
-    //        nl[0].n_type,
-    //        nl[0].n_value
-    //    );
-    //} else {
-    //    PRINTERR("ERROR: %s not found (very weird...)\n", nl[0].n_name);
-    //}
+    //struct sysent sysent_sym_addr[] = (struct sysent[])nl[0].n_value;
+    struct sysent *sysent_sym_addr = (struct sysent*)nl[0].n_value;
+    if (sysent_sym_addr) {
+        printf(
+            "%s[] is 0x%x at 0x%llx\n",
+            nl[0].n_name,
+            nl[0].n_type,
+            nl[0].n_value
+        );
+    } else {
+        PRINTERR("ERROR: %s not found (very weird...)\n", nl[0].n_name);
+    }
 
     int retval = 0;
-    ///* Check if that's correct. */
-    //if (sysent_sym_addr != sysent) {
-    //    printf(
-    //        "ALERT! It should point to 0x%lx instead\n",
-    //        sysent_sym_addr
-    //    );
-    //    retval = 1;
-    //} else {
-    //    retval = 0;
-    //}
+    /* Check if that's correct. */
+    if (sysent_sym_addr != sysent) {
+        printf(
+            "ALERT! It should point to 0x%p instead\n",
+            sysent_sym_addr
+        );
+        retval = 1;
+    } else {
+        retval = 0;
+    }
 
     ////if (kvm_close(kd) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));
 
     return retval;
 }
 
-/*
 int sym_lookup(struct kvm_nlist *nl) {
 
 
@@ -220,7 +220,6 @@ int sym_lookup(struct kvm_nlist *nl) {
 
 	return 0;
 }
-*/
 
 /*
 void usage() {

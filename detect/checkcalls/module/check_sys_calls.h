@@ -65,7 +65,7 @@
 
 #define PRINTERR(string, ...) do {\
         printf(string, __VA_ARGS__);\
-        exit(-1);\
+        return -1;\
     } while(0)
 
 typedef __uint64_t kvaddr_t;

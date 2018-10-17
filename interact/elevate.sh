@@ -1,5 +1,5 @@
 #!/bin/sh
-cc elevate.c
-sys_num=$(dmesg | grep "system call loaded at offset" | tail -1 | grep -Eo "[0-9]+")
+sys_num=$(cat syscall_number.txt)
 echo $sys_num
-./a.out $sys_num
+./syscall $sys_num 1
+

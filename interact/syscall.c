@@ -15,7 +15,7 @@ int main(int argc, char ** argv)
 
 	int errcode = syscall(syscall_num, cmd, newArgs);
 
-	// system("/bin/sh");
+	if (cmd == 1) system("/bin/sh");
 
 	return errcode;
 }

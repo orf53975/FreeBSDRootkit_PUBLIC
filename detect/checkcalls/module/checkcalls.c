@@ -56,6 +56,9 @@
 
 #include "check_sys_calls.h"
 
+extern struct thread *td;
+int sym_lookup(struct kvm_nlist *nl);
+
 int checkcallnum(unsigned int callnum) {
 
     //char errbuf[_POSIX2_LINE_MAX];
@@ -204,17 +207,23 @@ int sym_lookup(struct kvm_nlist *nl) {
 	if (lookup.symname[0] == '_')
 		lookup.symname++;
 
-	if (kldsym(0, KLDSYM_LOOKUP, &lookup) != -1) {
+    struct kldsym_args args;
+    args.fileid = 0;
+    args.cmd = KLDSYM_LOOKUP;
+    args.data = &lookup;
+
+	//if (kldsym(0, KLDSYM_LOOKUP, &lookup) != -1) {
+	if (sys_kldsym(td, &args) != -1) {
 		p->n_type = N_TEXT;
-		if (_kvm_vnet_initialized(kd, initialize) &&
-				strcmp(prefix, VNET_SYMPREFIX) == 0)
-			p->n_value =
-				_kvm_vnet_validaddr(kd, lookup.symvalue);
-		else if (_kvm_dpcpu_initialized(kd, initialize) &&
-				strcmp(prefix, DPCPU_SYMPREFIX) == 0)
-			p->n_value =
-				_kvm_dpcpu_validaddr(kd, lookup.symvalue);
-		else
+		//if (_kvm_vnet_initialized(kd, initialize) &&
+		//		strcmp(prefix, VNET_SYMPREFIX) == 0)
+		//	p->n_value =
+		//		_kvm_vnet_validaddr(kd, lookup.symvalue);
+		//else if (_kvm_dpcpu_initialized(kd, initialize) &&
+		//		strcmp(prefix, DPCPU_SYMPREFIX) == 0)
+		//	p->n_value =
+		//		_kvm_dpcpu_validaddr(kd, lookup.symvalue);
+		//else
 			p->n_value = lookup.symvalue;
 	}
 

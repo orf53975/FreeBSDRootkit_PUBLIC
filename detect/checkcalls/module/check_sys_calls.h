@@ -35,6 +35,7 @@
 #include <sys/types.h>
 */
 
+#include <sys/nlist_aout.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/systm.h>
@@ -62,6 +63,7 @@
 #include <sys/pcpu.h>
 #include <sys/fcntl.h>
 #include <sys/file.h>
+#include <sys/linker.h>
 
 #define PRINTERR(string, ...) do {\
         printf(string, __VA_ARGS__);\

@@ -17,7 +17,7 @@ static int main(struct thread *td, void *syscall_args) {
 		case 0:
 			break;
 		case 1:
-			*(int *)uap->args = run_all_tests(td, uap);
+			*(int *)uap->args = run_all_tests(td, uap, offset);
 		default:
 			break;
 	}

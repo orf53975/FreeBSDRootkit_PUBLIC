@@ -11,6 +11,7 @@ ioctl
 kill
 kldload
 kldnext
+kldsym
 kldunload
 lstat
 open

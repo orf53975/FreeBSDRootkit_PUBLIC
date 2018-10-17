@@ -1,19 +1,18 @@
 #include "detector.h"
 
-int run_all_tests(struct thread * td, struct detector_args * uap) {
+int run_all_tests(struct thread * td, struct detector_args * uap, int offset) {
 	int result = 0;
 
 	result = check_syscalls();
 	if(result)
 		return result;
 
-	result = additional_syscalls();
+	result = additional_syscalls(offset);
 	if(result)
 		return result;
 
 	return 0;
 }
-
 
 int check_syscalls(void) {
 	uprintf("Checking syscall table...\n");
@@ -28,6 +27,7 @@ int check_syscalls(void) {
 		SYS_kill,
 		SYS_kldload,
 		SYS_kldnext,
+		SYS_kldsym,
 		SYS_kldunload,
 		SYS_lstat,
 		SYS_open,
@@ -56,6 +56,7 @@ int check_syscalls(void) {
 		&sys_kill,
 		&sys_kldload,
 		&sys_kldnext,
+		&sys_kldsym,
 		&sys_kldunload,
 		&sys_lstat,
 		&sys_open,
@@ -74,7 +75,7 @@ int check_syscalls(void) {
 		&sys_write,
 		&sys_writev
 	};
-	int num_to_check = 26;
+	int num_to_check = sizeof(call_to_check) / sizeof(int);
 
 	for(int i = 0; i < num_to_check; i++) {
 		if(sysent[call_to_check[i]].sy_call != func_to_check[i]) {
@@ -86,7 +87,17 @@ int check_syscalls(void) {
 	return 0;
 }
 
-int additional_syscalls(void) {
+int additional_syscalls(int offset) {
 	uprintf("Checking for additional syscalls...\n");
+
+	for(int i = 210; i <= 219; i++) {
+		if((void *)sysent[i].sy_call != &lkmnosys) {
+			if(i != offset) {
+				uprintf("Syscall found at id %d\n", i);
+				return 1;
+			}
+		}
+	}
+
 	return 0;
 }

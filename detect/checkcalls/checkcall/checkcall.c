@@ -110,7 +110,7 @@ int checkcall(char *name, unsigned long int callnum){
     struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
 
     nl[0].n_name = "sysent";
-    nl[0].n_name = name;
+    nl[1].n_name = name;
 
     /* Find the address of sysent[]*/
     if (kvm_nlist(kd, nl) < 0) PRINTERR("ERROR: %s\n", kvm_geterr(kd));

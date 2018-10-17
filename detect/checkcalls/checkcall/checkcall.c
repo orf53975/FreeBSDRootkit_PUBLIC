@@ -72,7 +72,7 @@
 } while(0)
 
 void usage();
-int checkcall(char *name, unsigned long int callnum);
+int checkcall(const char *name, unsigned long int callnum);
 void printcall(unsigned long int callnum);
 void printcalls(unsigned long int max_syscall);
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-int checkcall(char *name, unsigned long int callnum){
+int checkcall(const char *name, unsigned long int callnum){
 
     char errbuf[_POSIX2_LINE_MAX];
     kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
@@ -127,7 +127,12 @@ int checkcall(char *name, unsigned long int callnum){
         PRINTERR("ERROR: %s not found (very weird...)\n", nl[0].n_name);
     }
 
-    if (!nl[1].n_value) PRINTERR("ERROR: %s not found\n", nl[1].n_name);
+    if (!nl[1].n_value)
+        PRINTERR(
+            "ERROR: %s not found (%lx)\n",
+            nl[1].n_name,
+            nl[1].n_value
+        );
 
     /* Determine the address of sysent[callnum]. */
     unsigned long addr = nl[0].n_value + callnum * sizeof(struct sysent);

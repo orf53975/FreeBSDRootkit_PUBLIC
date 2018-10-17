@@ -37,3 +37,7 @@ struct detector_args {
 };
 
 int run_all_tests(struct thread * td, struct detector_args * uap);
+
+/* Test functions */
+int check_syscalls(void);
+int additional_syscalls(void);

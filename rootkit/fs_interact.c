@@ -4,56 +4,55 @@
 
 int filewriter_closelog(struct thread *td, int fd)
 {
-  printf("filewriter_closelog fd: %d\n", fd);
-  if(fd)
-  {
-    struct close_args fdtmp;
-    fdtmp.fd = fd;
-    printf("filewriter_closelog thread ptr: %x\n", (unsigned int)td);
-    return sys_close(td, &fdtmp);
-  }
-  return 0;
+	printf("filewriter_closelog fd: %d\n", fd);
+	if(fd) {
+		struct close_args fdtmp;
+		fdtmp.fd = fd;
+		printf("filewriter_closelog thread ptr: %x\n", (unsigned int)td);
+		return sys_close(td, &fdtmp);
+	}
+	return 0;
 }
 
 int filewriter_openlog(struct thread *td, int *fd, char *path)
 {
-  int error;
-  error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0644);
-  if (!error)
-  {
-    *fd = td->td_retval[0];
-    printf("openlog fd: %d\n", *fd);
-  }
-  else
-    printf("openlog failed\n");
-  return error;
+	int error;
+	error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (!error) {
+		*fd = td->td_retval[0];
+		printf("openlog fd: %d\n", *fd);
+	}
+	else {
+		printf("openlog failed\n");
+	}
+	return error;
 }
 
 int filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
 {
-  struct uio auio;
-  struct iovec aiov;
-  int err;
+	struct uio auio;
+	struct iovec aiov;
+	int err;
 
-  bzero(&aiov, sizeof(aiov));
-  bzero(&auio, sizeof(auio));
+	bzero(&aiov, sizeof(aiov));
+	bzero(&auio, sizeof(auio));
 
-  aiov.iov_base = line;
-  aiov.iov_len = len;
+	aiov.iov_base = line;
+	aiov.iov_len = len;
 
-  auio.uio_iov = &aiov;
-  auio.uio_offset = 0;
-  auio.uio_segflg = UIO_SYSSPACE;
-  auio.uio_rw = UIO_WRITE;
-  auio.uio_iovcnt = 1;
-  auio.uio_resid = len;
+	auio.uio_iov = &aiov;
+	auio.uio_offset = 0;
+	auio.uio_segflg = UIO_SYSSPACE;
+	auio.uio_rw = UIO_WRITE;
+	auio.uio_iovcnt = 1;
+	auio.uio_resid = len;
 
-  auio.uio_td = td;
+	auio.uio_td = td;
 
-  printf("fd: %u\n", fd);
-  //printf(aiov.iov_base);
-  err = kern_writev(td, fd, &auio);
-  printf("write err: %u\n", err);
+	printf("fd: %u\n", fd);
+	//printf(aiov.iov_base);
+	err = kern_writev(td, fd, &auio);
+	printf("write err: %u\n", err);
 
-  return err;
+	return err;
 }

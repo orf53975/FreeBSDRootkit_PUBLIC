@@ -59,6 +59,65 @@
 extern struct thread *td;
 int sym_lookup(struct kvm_nlist *nl);
 
+int checkcall(const char *name, unsigned long int callnum){
+
+    struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
+    nl[0].n_name = name;
+    if (sym_lookup(nl) < 0) PRINTERR("ERROR: Unable to lookup: %s\n", name);
+
+
+    /*
+    struct sysent *sysent_sym_addr = (struct sysent*)nl[0].n_value;
+    if (sysent_sym_addr) {
+        printf(
+                "%s[%3lu] is 0x%x at 0x%lx\n",
+                nl[0].n_name,
+                callnum,
+                nl[0].n_type,
+                nl[0].n_value
+              );
+    } else {
+        PRINTERR("ERROR: %s not found (very weird...)\n", nl[0].n_name);
+    }
+    */
+
+    if (!nl[0].n_value)
+        PRINTERR(
+            "ERROR: %s not found (%lx)\n",
+            nl[0].n_name,
+            nl[0].n_value
+        );
+
+
+    /* Copy sysent[callnum]. ?
+    struct sysent call;
+    if (kvm_read(kd, addr, &call, sizeof(struct sysent)) < 0)
+        PRINTERR("ERROR: %s\n", kvm_geterr(kd));
+    */
+
+    /* Where does sysent[callnum].sy_call point to? */
+    printf(
+        "sysent[%3lu] is at 0x%lx and its sy_call member points to "
+        "%p\n", callnum, addr, call.sy_call
+    );
+
+    /* Check if that's correct. */
+    // TODO: find function address
+    int retval;
+    if (sysent[callnum].sy_call != nl[0].n_value) {
+        printf(
+            "ALERT! It should point to 0x%lx instead\n",
+            nl[1].n_value
+        );
+        retval = 1;
+    } else {
+        retval = 0;
+    }
+
+    return retval;
+
+}
+
 int checkcallnum(unsigned int callnum) {
 
     //char errbuf[_POSIX2_LINE_MAX];

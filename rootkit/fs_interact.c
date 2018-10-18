@@ -20,6 +20,7 @@ int filewriter_openlog(struct thread *td, int *fd, char *path)
   if (!error)
   {
     *fd = td->td_retval[0];
+    printf("File descriptor is %d\n", *fd);
     
   }
   return error;

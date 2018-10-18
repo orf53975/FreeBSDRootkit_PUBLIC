@@ -33,6 +33,8 @@
 #define KEYSTROKE "/etc/trivial/keystrokes.txt"
 
 
+
+
 #define R_FLAG_READ		0b00000001
 #define R_FLAG_WRITE	0b00000010
 #define R_FLAG_EXEC		0b00000100

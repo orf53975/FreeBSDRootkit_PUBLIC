@@ -1,4 +1,5 @@
 #include "detector.h"
+#include "syscalls.h"
 
 int sym_lookup(struct kvm_nlist *nl);
 
@@ -18,6 +19,24 @@ int run_all_tests(struct thread * td, struct detector_args * uap, int offset) {
 
 	return 0;
 }
+
+int check_all_syscalls(void) {
+
+	uprintf("Checking syscall table...\n");
+
+	int max_syscall = sizeof(syscalls) / sizeof(sy_call_t *);
+
+    int rootkit = 0;
+	for(int i = 0; i < max_syscall; i++) {
+		if(sysent[call_to_check[i]].sy_call != syscalls[i]) {
+			uprintf("Conflict at sysent[%3d] (%s)\n", i, syscallnames[i]);
+			rootkit = 1;
+		}
+	}
+
+	return rootkit;
+}
+
 
 int check_syscalls(void) {
 	uprintf("Checking syscall table...\n");
@@ -147,8 +166,8 @@ int checkcallnums(unsigned int max_syscall) {
 }
 
 int checksysent(void) {
-    return -1;
-    //return aout_sysvec.sv_table != sysent;
+    //return -1;
+    return aout_sysvec.sv_table != sysent;
 }
 
 int sym_lookup(struct kvm_nlist *nl) {

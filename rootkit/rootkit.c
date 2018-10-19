@@ -60,6 +60,7 @@ static struct sysent rootkit_sysent = {
 	main		/* implementing function */
 };
 
+
 /* The function called at load/unload. */
 static int load(struct module *module, int cmd, void *arg) {
 	int error = 0;

@@ -28,7 +28,7 @@ int check_all_syscalls(void) {
 
     int rootkit = 0;
 	for(int i = 0; i < max_syscall; i++) {
-		if(sysent[call_to_check[i]].sy_call != syscalls[i]) {
+		if(sysent[i].sy_call != syscalls[i]) {
 			uprintf("Conflict at sysent[%3d] (%s)\n", i, syscallnames[i]);
 			rootkit = 1;
 		}
@@ -167,7 +167,7 @@ int checkcallnums(unsigned int max_syscall) {
 
 int checksysent(void) {
     //return -1;
-    return aout_sysvec.sv_table != sysent;
+    return curproc->p_sysent->sv_table != sysent;
 }
 
 int sym_lookup(struct kvm_nlist *nl) {

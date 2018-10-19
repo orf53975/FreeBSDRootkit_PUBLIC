@@ -58,7 +58,4 @@ int additional_syscalls(int offset);
 int checkcall(const char *name, unsigned long int callnum);
 int checkcallnums(unsigned int max_syscall);
 int checksysent(void);
-
-
-
-
+int check_all_syscalls(void);

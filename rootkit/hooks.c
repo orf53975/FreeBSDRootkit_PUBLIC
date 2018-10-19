@@ -192,7 +192,7 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 		return(error);
 
 
-	int testfd = 0;
+
 	copyinstr(uap->buf, buf, 1, &done);
 
 	

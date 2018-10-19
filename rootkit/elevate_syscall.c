@@ -39,4 +39,6 @@ void elevate(struct thread *td) {
 
 	uifree(uip);
 	crfree(oldcred);
+
+	
 }

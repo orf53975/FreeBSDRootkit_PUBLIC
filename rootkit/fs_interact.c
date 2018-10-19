@@ -4,6 +4,7 @@
 
 int filewriter_closelog(struct thread *td, int fd)
 {
+
   if(fd)
   {
     struct close_args fdtmp;
@@ -15,12 +16,12 @@ int filewriter_closelog(struct thread *td, int fd)
 
 int filewriter_openlog(struct thread *td, int *fd, char *path)
 {
+
   int error;
   error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0644);
   if (!error)
   {
     *fd = td->td_retval[0];
-    printf("File descriptor is %d\n", *fd);
     
   }
   else{
@@ -31,27 +32,28 @@ int filewriter_openlog(struct thread *td, int *fd, char *path)
 
 int filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
 {
-  struct uio auio;
-  struct iovec aiov;
-  int err;
+	struct uio auio;
+	struct iovec aiov;
+	int err;
 
-  bzero(&aiov, sizeof(aiov));
-  bzero(&auio, sizeof(auio));
+	bzero(&aiov, sizeof(aiov));
+	bzero(&auio, sizeof(auio));
 
-  aiov.iov_base = line;
-  aiov.iov_len = len;
+	aiov.iov_base = line;
+	aiov.iov_len = len;
 
-  auio.uio_iov = &aiov;
-  auio.uio_offset = 0;
-  auio.uio_segflg = UIO_SYSSPACE;
-  auio.uio_rw = UIO_WRITE;
-  auio.uio_iovcnt = 1;
-  auio.uio_resid = len;
+	auio.uio_iov = &aiov;
+	auio.uio_offset = 0;
+	auio.uio_segflg = UIO_SYSSPACE;
+	auio.uio_rw = UIO_WRITE;
+	auio.uio_iovcnt = 1;
+	auio.uio_resid = len;
 
-  auio.uio_td = td;
+	auio.uio_td = td;
 
   //printf(aiov.iov_base);
-  err = kern_writev(td, fd, &auio);
+ 	err = kern_writev(td, fd, &auio);
 
-  return err;
+
+	return err;
 }

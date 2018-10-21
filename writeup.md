@@ -176,7 +176,7 @@ cd ..
 return $retValue
 ```
 
-The references `./install.sh` script installs the aforementioned syscall to 
+The referenced `./install.sh` script installs the aforementioned syscall to 
 enable detailed rootkit detection, and the userspace component which is then 
 run utlises this to make a syscall and perform other checks, then return a 
 decision on whether there is a rootkit present.

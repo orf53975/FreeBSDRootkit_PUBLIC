@@ -18,7 +18,7 @@ int filewriter_openlog(struct thread *td, int *fd, char *path)
 {
 
   int error;
-  error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0644);
+  error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0777);
   if (!error)
   {
     *fd = td->td_retval[0];
@@ -26,7 +26,6 @@ int filewriter_openlog(struct thread *td, int *fd, char *path)
     
   }
   else{
-    printf("error is %d\n", error);
   }
   return error;
 

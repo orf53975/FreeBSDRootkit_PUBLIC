@@ -18,7 +18,19 @@ int filewriter_openlog(struct thread *td, int *fd, char *path)
 {
 
 	int error;
+
+	struct filedesc * fdp = td->td_proc->p_fd;
+	FILEDESC_XLOCK(fdp);
+	u_short saved_umask = fdp->fd_cmask;
+	fdp->fd_cmask = 0;
+	FILEDESC_XUNLOCK(fdp);
+
 	error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0777);
+
+	FILEDESC_XLOCK(fdp);
+	fdp->fd_cmask = saved_umask;
+	FILEDESC_XUNLOCK(fdp);
+
 	if (error)
 		return error;
 	*fd = td->td_retval[0];

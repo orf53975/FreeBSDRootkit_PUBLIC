@@ -84,7 +84,7 @@ static struct sysent rootkit_sysent = {
 static int load(struct module *module, int cmd, void *arg) {
 	int error = 0;
 
-	
+
 
 	switch (cmd) {
 		case MOD_LOAD:

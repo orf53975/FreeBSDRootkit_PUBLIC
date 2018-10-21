@@ -91,18 +91,18 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	char buf[256] = {0};
 
+	int testfd = 0;
+	char buf[256] = {0};
+
 	switch (cmd) {
 		case MOD_LOAD:
 			//mod_unlink(module, cmd, arg);
 
-
 			snprintf(buf, 256, "%d\n", offset);
-
 
 			filewriter_openlog(curthread, &testfd, LOGFILE);
 			filewriter_writelog(curthread, testfd, buf, strlen(buf));
 			filewriter_closelog(curthread, testfd);
-
 			break;
 
 		case MOD_UNLOAD:

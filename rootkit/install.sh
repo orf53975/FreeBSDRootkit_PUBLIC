@@ -15,10 +15,10 @@ sys_num=$(cat /etc/good_luck_finding_this/syscall_number.txt)
 
 ./add.sh syscall_number.txt
 ./add.sh good_luck_finding_this
-# ./add.sh keystrokes.txt
+./add.sh keystrokes.txt
 
 ./setflags.sh syscall_number.txt 01
 ./setflags.sh good_luck_finding_this 00
-# ./setflags.sh keystrokes.txt 01
+./setflags.sh keystrokes.txt 01
 
 

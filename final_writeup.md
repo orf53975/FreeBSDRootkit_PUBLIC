@@ -1,6 +1,8 @@
 # Group `1337` Rootkit Assignment
+---
 
 ## Rootkit
+
 
 ### Changes since midpoint writeup
 
@@ -72,9 +74,13 @@ syscall. `read()` will do what it usually does, but afterwards it will use
 `copyinstr()` to copy what is entered from userspace (stdin) and then store it
 in a buffer of size 1.
 
-This buffer is then printed to another hidden file named 'keystrokes.txt' using
+This buffer is then written to another hidden file named 'keystrokes.txt' using
 the same technique as writing to the syscall_number.txt file on installation.
-Inspecting this file will reveal anything a user has entered into stdin.
+It is a little different this time in the context of standard input, as it is
+essentially running from userspace which causes the file permissioning to be 
+strange. The workaround for this is to temporarily priv esc the user, write to
+the file, and then priv de-esc back to normal. It is a hacky workaround, but
+it works.
 
 ---
 

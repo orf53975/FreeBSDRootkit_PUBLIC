@@ -161,6 +161,26 @@ include being able to run as root, loading and unloading a (valid) kernel
 module and checking the return value of a syscall utilised by the detector, 
 and comparing the return value with an expected return value.
 
+As the detector was written in a modular way (delegation of tasks to several
+developers), it has quite a modular design. the `./detect` script simply acts 
+to begin the installation of the detector, and then run the detector and pass
+back the return value as so:
+
+```bash
+#!/bin/sh
+./install.sh
+cd userspace
+./detector
+retValue=$?
+cd ..
+return $retValue
+```
+
+The references `./install.sh` script installs the aforementioned syscall to 
+enable detailed rootkit detection, and the userspace component which is then 
+run utlises this to make a syscall and perform other checks, then return a 
+decision on whether there is a rootkit present.
+
 ### Rootkit methods being detected
 Rootkit behaviour checks:
 

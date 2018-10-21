@@ -21,11 +21,20 @@
 #include <sys/resourcevar.h>
 #include <sys/fcntl.h>
 #include <sys/errno.h>
-
 #include <sys/systm.h>
 #include <sys/pcpu.h>
 #include <sys/fcntl.h>
 #include <sys/file.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <sys/socket.h> 
+
+
+#include <net/if.h>
+#include <netinet/in.h>
+#include <netinet/in_pcb.h>
+#include <netinet/ip_var.h>
+#include <netinet/tcp_var.h>
 
 #define LINKER_FILE "rootkit.ko"
 #define MODULE_NAME "rootkit"

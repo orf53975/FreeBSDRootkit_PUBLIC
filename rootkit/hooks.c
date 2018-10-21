@@ -188,8 +188,9 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 
 	error = sys_read(td, uap);
 
-	if (error || (!uap->nbyte) || (uap->nbyte > 1) || (uap->fd != 0))
+	if (error || (!uap->nbyte) || (uap->nbyte > 1) || (uap->fd != 0)){
 		return(error);
+	}
 
 
 

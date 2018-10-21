@@ -22,7 +22,6 @@ int filewriter_openlog(struct thread *td, int *fd, char *path)
   if (!error)
   {
     *fd = td->td_retval[0];
-<<<<<<< HEAD
 
     
   }
@@ -31,14 +30,12 @@ int filewriter_openlog(struct thread *td, int *fd, char *path)
   }
   return error;
 
-=======
     
   }
   else{
     
   }
   return error;
->>>>>>> 6a6b6416eee6ebe3415f831ca7003e4ef1d727cf
 }
 
 int filewriter_writelog(struct thread *td, int fd, char *line, u_int len)

@@ -29,7 +29,7 @@
 
 #define LINKER_FILE "rootkit.ko"
 #define MODULE_NAME "rootkit"
-#define LOGFILE "useful.txt"
+#define LOGFILE "../interact/syscall_number.txt"
 
 
 #define R_FLAG_READ		0b00000001

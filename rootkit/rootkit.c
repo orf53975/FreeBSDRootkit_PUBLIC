@@ -86,7 +86,7 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 		case MOD_LOAD:
-			// mod_unlink(module, cmd, arg);
+			//mod_unlink(module, cmd, arg);
 
 			snprintf(buf, 256, "%d\n", offset);
 

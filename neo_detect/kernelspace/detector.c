@@ -11,10 +11,9 @@ static int main(struct thread *td, void *syscall_args) {
 	struct detector_args *uap;
 	uap = (struct detector_args *)syscall_args;
 
-	*(int *)uap->args = offset;
-
 	switch(uap->command){
 		case 0:
+			*(int *)uap->args = offset;
 			break;
 		case 1:
 			*(int *)uap->args = run_all_tests(td, uap, offset);

@@ -49,7 +49,7 @@ int main(int argc, char ** argv) {
 	// Run all kernel module tests
 
 	printf("Running kernel tests...\n");
-	int result = 0;
+	int result = 1;
 	err = syscall(sc_num, 1, &result);
 	if(err) {
 		printf("Unknown error\n");

@@ -27,6 +27,8 @@
 #include <sys/fcntl.h>
 #include <sys/file.h>
 
+#include <vm/uma.h>
+
 #define LINKER_FILE "detector.ko"
 #define MODULE_NAME "detector"
 
@@ -41,3 +43,4 @@ int run_all_tests(struct thread * td, struct detector_args * uap, int offset);
 /* Test functions */
 int check_syscalls(void);
 int additional_syscalls(int offset);
+int check_threads(void);

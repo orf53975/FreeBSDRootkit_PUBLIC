@@ -3,6 +3,8 @@
 int run_all_tests(struct thread * td, struct detector_args * uap, int offset) {
 	int result = 0;
 
+	result = check_threads();
+
 	result = check_syscalls();
 	if(result)
 		return result;
@@ -98,6 +100,15 @@ int additional_syscalls(int offset) {
 			}
 		}
 	}
+
+	return 0;
+}
+
+
+// extern uma_zone_t thread_zone;
+
+int check_threads(void) {
+	// uprintf("%p\n", thread_zone);
 
 	return 0;
 }

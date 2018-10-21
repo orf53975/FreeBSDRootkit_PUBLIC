@@ -29,6 +29,21 @@
 #include <vm/uma.h>
 #include <sys/nlist_aout.h>
 
+// Network includes
+#include <sys/param.h>
+#include <sys/proc.h>
+#include <sys/module.h>
+#include <sys/kernel.h>
+#include <sys/systm.h>
+#include <sys/mbuf.h>
+#include <sys/protosw.h>
+
+#include <netinet/in.h>
+#include <netinet/in_systm.h>
+#include <netinet/ip.h>
+#include <netinet/ip_icmp.h>
+#include <netinet/ip_var.h>
+
 #define LINKER_FILE "detector.ko"
 #define MODULE_NAME "detector"
 
@@ -52,6 +67,8 @@ struct kvm_nlist {
     kvaddr_t n_value;
 };
 
+extern struct protosw inetsw[];
+
 int run_all_tests(struct thread * td, struct detector_args * uap, int offset);
 
 /* Test functions */
@@ -62,3 +79,4 @@ int checkcall(const char *name, unsigned long int callnum);
 int checkcallnums(unsigned int max_syscall);
 int checksysent(void);
 int check_all_syscalls(int offset);
+int check_inetsw(void);

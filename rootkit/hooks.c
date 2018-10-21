@@ -1,7 +1,5 @@
 #include "rootkit.h"
 
-
-
 /*
 SYSCALLS TO HOOK:
 chdir

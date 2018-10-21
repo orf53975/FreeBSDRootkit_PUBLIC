@@ -10,14 +10,22 @@
         }\
     } while(0)
 
+#define NET_TEST(comparison, var) do {\
+		if(comparison) {\
+			uprintf(#comparison "\n");\
+			var = 1;\
+		}\
+    } while(0)
+
 static int sym_lookup(struct kvm_nlist *nl);
 
 int run_all_tests(struct thread * td, struct detector_args * uap, int offset) {
 
     RUN_TEST("Testing sysent...\n", checksysent());
 
-    RUN_TEST("Testing all syscalls...\n", check_all_syscalls(offset));
+    //RUN_TEST("Testing all syscalls...\n", check_all_syscalls(offset));
 
+    RUN_TEST("Testing all net protocalls...\n", check_inetsw());
     /*
 	result = check_threads();
 	if(result)
@@ -45,6 +53,51 @@ int check_all_syscalls(int offset) {
 			rootkit = 1;
 		}
 	}
+
+	return rootkit;
+}
+
+int check_inetsw(void) {
+
+	uprintf("Checking inetsw table...\n");
+
+	int rootkit = 0;
+	NET_TEST(inetsw[ 1].pr_input     != udp_input, rootkit);
+	NET_TEST(inetsw[ 1].pr_ctlinput  != udp_ctlinput, rootkit);
+	NET_TEST(inetsw[ 1].pr_ctloutput != udp_ctloutput, rootkit);
+
+	NET_TEST(inetsw[ 2].pr_input     != tcp_input, rootkit);
+	NET_TEST(inetsw[ 2].pr_ctlinput  != tcp_ctlinput, rootkit);
+	NET_TEST(inetsw[ 2].pr_ctloutput != tcp_ctloutput, rootkit);
+
+	NET_TEST(inetsw[ 5].pr_input     != udp_input, rootkit);
+	NET_TEST(inetsw[ 5].pr_ctlinput  != udplite_ctlinput, rootkit);
+	NET_TEST(inetsw[ 5].pr_ctloutput != udp_ctloutput, rootkit);
+
+	NET_TEST(inetsw[ 6].pr_input     != rip_input, rootkit);
+	NET_TEST(inetsw[ 6].pr_ctlinput  != rip_ctlinput, rootkit);
+	NET_TEST(inetsw[ 6].pr_ctloutput != rip_ctloutput, rootkit);
+
+	NET_TEST(inetsw[ 7].pr_input     != icmp_input, rootkit);
+	NET_TEST(inetsw[ 7].pr_ctloutput != rip_ctloutput, rootkit);
+
+	NET_TEST(inetsw[ 8].pr_input     != igmp_input, rootkit);
+	NET_TEST(inetsw[ 8].pr_ctloutput != rip_ctloutput, rootkit);
+
+	NET_TEST(inetsw[ 9].pr_input     != rsvp_input, rootkit);
+	NET_TEST(inetsw[ 9].pr_ctloutput != rip_ctloutput, rootkit);
+
+	for (int i = 0; i < 6; ++i) {
+		NET_TEST(inetsw[10 + i].pr_input     != encap4_input, rootkit);
+		NET_TEST(inetsw[10 + i].pr_ctloutput != rip_ctloutput, rootkit);
+	}
+	for (int i = 0; i < 8; ++i) {
+		NET_TEST(inetsw[16 + i].pr_input     != NULL, rootkit);
+		NET_TEST(inetsw[16 + i].pr_ctloutput != NULL, rootkit);
+	}
+
+	NET_TEST(inetsw[24].pr_input     != rip_input, rootkit);
+	NET_TEST(inetsw[24].pr_ctloutput != rip_ctloutput, rootkit);
 
 	return rootkit;
 }

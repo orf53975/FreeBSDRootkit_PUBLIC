@@ -14,7 +14,7 @@ int main(int argc, char ** argv) {
 	err =  getuid();
 	if(err) {
 		printf("Not running as root\n");
-		return -1;
+		return 1;
 	}
 
 	printf("Checking for kernel module...\n");

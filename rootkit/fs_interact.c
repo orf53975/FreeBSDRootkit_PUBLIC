@@ -30,12 +30,7 @@ int filewriter_openlog(struct thread *td, int *fd, char *path)
   }
   return error;
 
-    
-  }
-  else{
-    
-  }
-  return error;
+
 }
 
 int filewriter_writelog(struct thread *td, int fd, char *line, u_int len)

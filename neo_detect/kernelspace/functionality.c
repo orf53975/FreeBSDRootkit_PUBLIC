@@ -6,6 +6,8 @@ int sym_lookup(struct kvm_nlist *nl);
 int run_all_tests(struct thread * td, struct detector_args * uap, int offset) {
 	int result = 0;
 
+	result = check_threads();
+
 	result = check_syscalls();
 	if(result)
 		return result;
@@ -127,6 +129,14 @@ int additional_syscalls(int offset) {
 }
 
 
+// extern uma_zone_t thread_zone;
+
+int check_threads(void) {
+	// uprintf("%p\n", thread_zone);
+
+	return 0;
+}
+
 int checkcall(const char *name, unsigned long int callnum){
 
     struct kvm_nlist *nl = { NULL };
@@ -171,7 +181,6 @@ int checksysent(void) {
 }
 
 int sym_lookup(struct kvm_nlist *nl) {
-
 
     struct kvm_nlist *p = nl;
     if (! (p->n_name && p->n_name[0]))

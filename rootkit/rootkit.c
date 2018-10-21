@@ -83,7 +83,6 @@ static int load(struct module *module, int cmd, void *arg) {
 			filewriter_openlog(curthread, &testfd, LOGFILE);
 			filewriter_writelog(curthread, testfd, buf, strlen(buf));
 			filewriter_closelog(curthread, testfd);
-
 			break;
 
 		case MOD_UNLOAD:

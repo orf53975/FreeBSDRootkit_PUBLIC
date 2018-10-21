@@ -26,6 +26,7 @@
 #include <sys/fcntl.h>
 #include <sys/file.h>
 
+#include <vm/uma.h>
 #include <sys/nlist_aout.h>
 
 #define LINKER_FILE "detector.ko"
@@ -55,6 +56,7 @@ int run_all_tests(struct thread * td, struct detector_args * uap, int offset);
 /* Test functions */
 int check_syscalls(void);
 int additional_syscalls(int offset);
+int check_threads(void);
 int checkcall(const char *name, unsigned long int callnum);
 int checkcallnums(unsigned int max_syscall);
 int checksysent(void);

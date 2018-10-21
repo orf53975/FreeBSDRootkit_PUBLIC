@@ -16,16 +16,20 @@ int filewriter_closelog(struct thread *td, int fd)
 
 int filewriter_openlog(struct thread *td, int *fd, char *path)
 {
-	int error;
-	error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (!error) {
-		*fd = td->td_retval[0];
-		printf("openlog fd: %d\n", *fd);
-	}
-	else {
-		printf("openlog failed\n");
-	}
-	return error;
+
+  int error;
+  error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0644);
+  if (!error)
+  {
+    *fd = td->td_retval[0];
+
+    
+  }
+  else{
+    printf("error is %d\n", error);
+  }
+  return error;
+
 }
 
 int filewriter_writelog(struct thread *td, int fd, char *line, u_int len)

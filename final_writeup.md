@@ -3,6 +3,8 @@ Group (TODO: insert group number here) Rootkit Assignment
 #How The Rootkit Installs Itself
 ---
 
+The rootkit is installed as a module with a syscall component, taking advantage of the DECLARE_MODULE macro. There was the option to use the SYSCALL_MODULE macro, but this rootkit opts to do the extra setup manuall to allow for more control. The load() function for the rootkit module also calls some functions to write the new syscall's number to a .txt file so that it can be used later dynamically as opposed to harcoding the number when it is needed.
+
 #How The Rootkit Escalates Privelege/Gets Root Access
 ---
 

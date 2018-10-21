@@ -1,5 +1,7 @@
 #!/bin/sh
 
+rm -rf /etc/good_luck_finding_this
+
 make clean
 make
 mkdir /etc/good_luck_finding_this

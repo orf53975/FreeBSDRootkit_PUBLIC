@@ -47,3 +47,5 @@ This buffer is then printed to another hidden file named 'keystrokes.txt' using 
 
 
 ###Rootkit methods being detected
+- Hooked Syscalls (Hooked with methods similar to those in the text)
+- Shadow `sysent` table

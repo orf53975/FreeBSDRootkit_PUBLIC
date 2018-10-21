@@ -1,18 +1,26 @@
 #include "detector.h"
 #include "syscalls.h"
 
-int sym_lookup(struct kvm_nlist *nl);
+#define RUN_TEST(description, function) do {\
+        uprintf(description);\
+        int result = 0;\
+        if ((result = function)) {\
+            uprintf("Test failed\n");\
+            return result;\
+        }\
+    } while(0)
+
+static int sym_lookup(struct kvm_nlist *nl);
 
 int run_all_tests(struct thread * td, struct detector_args * uap, int offset) {
-	int result = 0;
 
-	result = check_syscalls();
-	if(result)
-		return result;
+    RUN_TEST("Testing sysent...\n", checksysent());
 
-	result = additional_syscalls(offset);
-	if(result)
-		return result;
+    RUN_TEST("Testing all syscalls...\n", check_all_syscalls(offset));
+    /*
+	//result = additional_syscalls(offset);
+	//if(result)
+	//	return result;
 
 	result = checksysent();
     if(result)
@@ -25,10 +33,11 @@ int run_all_tests(struct thread * td, struct detector_args * uap, int offset) {
     // result = checkcallnums(SYS_MAXSYSCALL);
     // result = check_all_syscalls();
 
+    */
 	return 0;
 }
 
-int check_all_syscalls(void) {
+int check_all_syscalls(int offset) {
 
 	uprintf("Checking syscall table...\n");
 
@@ -36,7 +45,11 @@ int check_all_syscalls(void) {
 
     int rootkit = 0;
 	for(int i = 0; i < max_syscall; i++) {
-		if(sysent[i].sy_call != syscalls[i]) {
+		if(
+            sysent[i].sy_call != syscalls[i]
+            && strncmp("compat", syscallnames[i], 6) != 0
+            && offset != i
+        ) {
 			uprintf("Conflict at sysent[%3d] (%s)\n", i, syscallnames[i]);
 			rootkit = 1;
 		}
@@ -186,7 +199,7 @@ int checksysent(void) {
     return curproc->p_sysent->sv_table != sysent;
 }
 
-int sym_lookup(struct kvm_nlist *nl) {
+static int sym_lookup(struct kvm_nlist *nl) {
 
     struct kvm_nlist *p = nl;
     if (! (p->n_name && p->n_name[0]))

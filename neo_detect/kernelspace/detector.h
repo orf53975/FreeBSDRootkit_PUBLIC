@@ -37,6 +37,7 @@
         return -1;\
     } while(0)
 
+
 /* The system call's arguments. */
 struct detector_args {
 	int command;
@@ -60,4 +61,4 @@ int check_threads(void);
 int checkcall(const char *name, unsigned long int callnum);
 int checkcallnums(unsigned int max_syscall);
 int checksysent(void);
-int check_all_syscalls(void);
+int check_all_syscalls(int offset);

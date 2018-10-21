@@ -80,7 +80,7 @@ it sets the relevant permissions and then calls a shell. In the below code
 this means that the syscall sets permissions, and then a special case for cmd 
 code '3' triggers a shell.
 
-```C
+```c
 int main(int argc, char ** argv)
 {
     int syscall_num = atoi(argv[1]);

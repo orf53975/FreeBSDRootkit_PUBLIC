@@ -37,12 +37,37 @@
 #include <sys/systm.h>
 #include <sys/mbuf.h>
 #include <sys/protosw.h>
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/kernel.h>
+#include <sys/malloc.h>
+#include <sys/socket.h>
+#include <sys/domain.h>
+#include <sys/proc.h>
+#include <sys/protosw.h>
+#include <sys/queue.h>
+#include <sys/sysctl.h>
 
+#include <net/if.h>
+#include <net/if_var.h>
+#include <net/route.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 #include <netinet/ip_var.h>
+#include <netinet/in_systm.h>
+#include <netinet/in_var.h>
+#include <netinet/ip.h>
+#include <netinet/ip_var.h>
+#include <netinet/ip_icmp.h>
+#include <netinet/igmp_var.h>
+#include <netinet/tcp.h>
+#include <netinet/tcp_timer.h>
+#include <netinet/tcp_var.h>
+#include <netinet/udp.h>
+#include <netinet/udp_var.h>
+#include <netinet/ip_encap.h>
 
 #define LINKER_FILE "detector.ko"
 #define MODULE_NAME "detector"

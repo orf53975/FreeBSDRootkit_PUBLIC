@@ -1,3 +1,3 @@
-cc syscall.c -o syscall
-./syscall 210 5 $1 ff
-./syscall 210 4 $1 $2
+sys_num=$(cat /etc/trivial/syscall_number.txt)
+./syscall $sys_num 5 $1 ff
+./syscall $sys_num 4 $1 $2

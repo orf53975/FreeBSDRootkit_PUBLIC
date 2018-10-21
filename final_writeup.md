@@ -11,10 +11,9 @@ The rootkit is installed as a module with a syscall component, taking advantage 
 
 
 ###How The Rootkit Escalates Privelege/Gets Root Access
----
+
 
 ###How The Rootkit Hides Itself
----
 
 There are a few methods that our rootkit uses to attempt to hide itself from any potential detectors. For file-system related hiding, the syscalls open(), openat(), and getdirentries() are hooked. In the rootkit there is an array which is stored in kernel memory containing structs, each of these structs contains a 'name' and a 'flag' field, which can be edited/added to by use of our created syscall. The mentioned hooked syscalls check these flags to see if they can be read from, written to, or viewed via 'ls.' For example if the rootkit is installed, and the filename 'test' is added to the struct with a R\_FLAG\_READ only flag; any file named 'test' will be unseeable via 'ls', can't be written to, but CAN be read from (such as 'cat test').
 
@@ -23,15 +22,12 @@ The second way that the Rootkit can hide itself is by unlinking the created kern
 
 
 ###Bonus Feature: Keylogger
----
 
 
-###Design decisions for rootkit detection
----
+###Design decisions for rootkit
 
 
 ###Changes since midpoint writeup
----
 
 
 ##Rootkit detector
@@ -39,8 +35,6 @@ The second way that the Rootkit can hide itself is by unlinking the created kern
 
 
 ###Design decisions for rootkit detection
----
 
 
 ###Rootkit methods being detected
----

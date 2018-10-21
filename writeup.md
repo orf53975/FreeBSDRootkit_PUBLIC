@@ -1,8 +1,6 @@
 # Group `1337` Rootkit Assignment
----
 
 ## Rootkit
-
 
 ### Changes since midpoint writeup
 
@@ -136,6 +134,10 @@ strange. The workaround for this is to temporarily priv esc the user, write to
 the file, and then priv de-esc back to normal. It is a hacky workaround, but
 it works.
 
+An attempt was made to setup a tcp server to communicate with the remote and
+thus exfiltrate the keystrokes through a network connection by setting up a
+hook inside inetsw, however we were not able to further continue this.
+
 ---
 
 ## Rootkit detector
@@ -183,13 +185,13 @@ decision on whether there is a rootkit present.
 
 ### Rootkit methods being detected
 
-#### Rootkit behaviour checks:
+#### Rootkit behaviour checks
 
 * Hooked Syscalls (Hooked with methods similar to those in the text)
 * Shadowed `sysent` table.
 * Hooked inetsw table (Hooked with methods similar to those in the text)
 
-#### Sanity checks:
+#### Sanity checks
 
 * Unable to execute `./detect` as root.
 * Unable to load a valid kernel module.

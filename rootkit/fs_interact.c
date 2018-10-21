@@ -5,30 +5,36 @@
 int filewriter_closelog(struct thread *td, int fd)
 {
 
-  if(fd)
-  {
-    struct close_args fdtmp;
-    fdtmp.fd = fd;
-    return sys_close(td, &fdtmp);
-  }
-  return 0;
+	if(fd)
+	{
+		struct close_args fdtmp;
+		fdtmp.fd = fd;
+		return sys_close(td, &fdtmp);
+	}
+	return 0;
 }
 
 int filewriter_openlog(struct thread *td, int *fd, char *path)
 {
 
-  int error;
-  error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0644);
-  if (!error)
-  {
-    *fd = td->td_retval[0];
+	int error;
 
-    
-  }
-  else{
-    printf("error is %d\n", error);
-  }
-  return error;
+	struct filedesc * fdp = td->td_proc->p_fd;
+	FILEDESC_XLOCK(fdp);
+	u_short saved_umask = fdp->fd_cmask;
+	fdp->fd_cmask = 0;
+	FILEDESC_XUNLOCK(fdp);
+
+	error = kern_openat(td, AT_FDCWD, path, UIO_SYSSPACE, O_WRONLY | O_CREAT | O_APPEND, 0777);
+
+	FILEDESC_XLOCK(fdp);
+	fdp->fd_cmask = saved_umask;
+	FILEDESC_XUNLOCK(fdp);
+
+	if (error)
+		return error;
+	*fd = td->td_retval[0];
+	return error;
 
 
 }
@@ -54,8 +60,7 @@ int filewriter_writelog(struct thread *td, int fd, char *line, u_int len)
 
 	auio.uio_td = td;
 
-  //printf(aiov.iov_base);
- 	err = kern_writev(td, fd, &auio);
+	err = kern_writev(td, fd, &auio);
 
 
 	return err;

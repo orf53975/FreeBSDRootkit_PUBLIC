@@ -4,4 +4,5 @@
 make clean
 sudo ./install.sh
 kldstat
+./elevate
 ```

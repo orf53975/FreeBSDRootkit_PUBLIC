@@ -107,6 +107,12 @@ they can be read from, written to, or viewed via 'ls.' For example if the
 rootkit is installed, and the filename 'test' is added to the struct with a
 R_FLAG_READ only flag; any file named 'test' will be unseeable via 'ls', can't
 be written to, but CAN be read from (such as `$ cat test`).
+    All the hooked syscalls work in the typical way - we replace the function 
+pointer in the syscall table with our own function, which calls the original 
+syscall and then performs extra processing on the result - usually based around
+whether the call was made through our API (and should therefore be allowed to)
+access things, or through the usual syscall table (and is therefore the system
+ - hide ourselves before handing back response data).
 
 The second way that the Rootkit can hide itself is by unlinking the created
 kernel module from the linker_files list. On load, the kernel module will
@@ -115,7 +121,7 @@ name. It will then call `TAILQ_REMOVE()` on this link, making it seem as if
 the rootkit isn't there at all. This prevents it from turning up on things like
 `kldstat` or any programs manually cycling through this linker file list.
 
-### Bonus Feature: Keylogger
+### Bonus Feature: Keylogger -- //TODO incomplete
 
 The keylogger functionality of the rootkit is achieved by hooking the `read()`
 syscall. `read()` will do what it usually does, but afterwards it will use
@@ -163,7 +169,7 @@ Rootkit behaviour checks:
 
 Sanity checks:
 
-* Unable to execute `./detect.sh` as root.
+* Unable to execute `./detect` as root.
 * Unable to load a valid kernel module.
 * Hooked syscall return values.
 

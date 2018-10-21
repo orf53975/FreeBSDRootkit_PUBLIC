@@ -31,7 +31,6 @@ There are a few methods that our rootkit uses to attempt to hide itself from any
 The second way that the Rootkit can hide itself is by unlinking the created kernel module from the linker\_files list. On load, the kernel module will iterate through the linker files until it finds the one with the 'rootkit.ko' name. It will then call `TAILQ\_REMOVE()` on this link, making it seem as if the rootkit isn't there at all. This prevents it from turning up on things like `kldstat` or any programs manually cycling through this linker file list.
 
 
-
 ###Bonus Feature: Keylogger
 
 The keylogger functionality of the rootkit is achieved by hooking the `read()` syscall. `read()` will do what it usually does, but afterwards it will use `copyinstr()` to copy what is entered from userspace (stdin) and then store it in a buffer of size 1.
@@ -47,5 +46,6 @@ This buffer is then printed to another hidden file named 'keystrokes.txt' using 
 
 
 ###Rootkit methods being detected
-- Hooked Syscalls (Hooked with methods similar to those in the text)
+#### Hooked Syscalls (Hooked with methods similar to those in the text)
+In order to detect Hooked Syscalls, 
 - Shadow `sysent` table

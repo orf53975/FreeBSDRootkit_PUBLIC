@@ -54,113 +54,105 @@
  * SUCH DAMAGE.
  */
 
-#include <fcntl.h>
-#include <kvm.h>
-#include <limits.h>
-#include <nlist.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/sysent.h>
+#include "check_sys_calls.h"
 
-void usage();
+int sym_lookup(struct kvm_nlist *nl);
 
-int
-main(int argc, char *argv[])
-{
-	char errbuf[_POSIX2_LINE_MAX];
-	kvm_t *kd;
-	struct nlist nl[] = { { NULL }, { NULL }, { NULL }, };
+int checkcall(const char *name, unsigned long int callnum){
 
-	unsigned long addr;
-	int callnum;
-	struct sysent call;
+    struct kvm_nlist *nl = { NULL };
+    nl[0].n_name = name;
+    if (sym_lookup(nl) < 0) PRINTERR("ERROR: Unable to lookup: %s\n", name);
 
-	/* Check arguments. */
-	if (argc < 3) {
-		usage();
-		exit(-1);
-	}
+    sy_call_t *sy_call = (sy_call_t*)nl[0].n_value;
+    if (!sy_call) PRINTERR("ERROR: %s not found (%p)\n", name, sy_call);
 
-	nl[0].n_name = "sysent";
-	nl[1].n_name = argv[1];
-	callnum = (int)strtol(argv[2], (char **)NULL, 10);
+    uprintf(
+        "sysent[%3lu].sy_call -> %p (%s) {%d}\n",
+        callnum, sysent[callnum].sy_call, name, nl[0].n_type
+    );
 
-	printf("Checking system call %d: %s\n\n", callnum, argv[1]);
+    if (sysent[callnum].sy_call != sy_call) {
+        uprintf("ALERT! It should point to %p instead\n", sy_call);
+        return 1;
+    }
 
-	kd = kvm_openfiles(NULL, NULL, NULL, O_RDWR, errbuf);
-	if (!kd) {
-		fprintf(stderr, "ERROR: %s\n", errbuf);
-		exit(-1);
-	}
+    return 0;
 
-	/* Find the address of sysent[] and argv[1]. */
-	if (kvm_nlist(kd, nl) < 0) {
-		fprintf(stderr, "ERROR: %s\n", kvm_geterr(kd));
-		exit(-1);
-	}
-
-	if (nl[0].n_value)
-		printf("%s[] is 0x%x at 0x%lx\n", nl[0].n_name, nl[0].n_type,
-		    nl[0].n_value);
-	else {
-		fprintf(stderr, "ERROR: %s not found (very weird...)\n",
-		    nl[0].n_name);
-		exit(-1);
-	}
-
-	if (!nl[1].n_value) {
-		fprintf(stderr, "ERROR: %s not found\n", nl[1].n_name);
-		exit(-1);
-	}
-
-	/* Determine the address of sysent[callnum]. */
-	addr = nl[0].n_value + callnum * sizeof(struct sysent);
-
-	/* Copy sysent[callnum]. */
-	if (kvm_read(kd, addr, &call, sizeof(struct sysent)) < 0) {
-		fprintf(stderr, "ERROR: %s\n", kvm_geterr(kd));
-		exit(-1);
-	}
-
-	/* Where does sysent[callnum].sy_call point to? */
-	printf("sysent[%d] is at 0x%lx and its sy_call member points to "
-	    "%p\n", callnum, addr, call.sy_call);
-
-	/* Check if that's correct. */
-	if ((uintptr_t)call.sy_call != nl[1].n_value) {
-		printf("ALERT! It should point to 0x%lx instead\n",
-		    nl[1].n_value);
-
-		/* Should this be fixed? */
-		if (argv[3] && strncmp(argv[3], "fix", 3) == 0) {
-			printf("Fixing it... ");
-
-			call.sy_call = (sy_call_t *)(uintptr_t)nl[1].n_value;
-			if (kvm_write(kd, addr, &call, sizeof(struct sysent))
-			    < 0) {
-				fprintf(stderr, "ERROR: %s\n", kvm_geterr(kd));
-				exit(-1);
-			}
-
-			printf("Done.\n");
-		}
-	}
-
-	if (kvm_close(kd) < 0) {
-		fprintf(stderr, "ERROR: %s\n", kvm_geterr(kd));
-		exit(-1);
-	}
-
-	exit(0);
 }
 
-void
-usage()
-{
-	fprintf(stderr,"Usage:\ncheckcall [system call function] "
-	    "[call number] <fix>\n\n");
-	fprintf(stderr, "For a list of system call numbers see "
-	    "/sys/sys/syscall.h\n");
+int checkcallnums(unsigned int max_syscall) {
+    int retval = 0;
+    for (unsigned int i = 0; i < max_syscall; i++) {
+        const char *name = syscallnames[i];
+        int status = checkcall(name, i);
+        if (status) {
+            uprintf("'%s' is hooked!", name);
+        } else {
+            uprintf("'%s' is normal.", name);
+        }
+        if (status) retval = status;
+    }
+    return retval;
+}
+
+int checksysent(void) {
+    return -1;
+    //return aout_sysvec.sv_table != sysent;
+}
+
+int sym_lookup(struct kvm_nlist *nl) {
+
+
+    struct kvm_nlist *p = nl;
+    if (! (p->n_name && p->n_name[0]))
+        return -1;
+
+    if (p->n_type != N_UNDF)
+        return -1;
+
+    char symname[1024]; //XXX-BZ symbol name length limit?
+    const char *prefix = "";
+    int error = snprintf(
+        symname,
+        sizeof(symname),
+        "%s%s",
+        prefix,
+        (prefix[0] != '\0' && p->n_name[0] == '_')
+            ? (p->n_name + 1) : p->n_name
+    );
+
+    if (error < 0 || error >= (int)sizeof(symname))
+        return -1;
+
+    struct kld_sym_lookup lookup;
+    lookup.version = sizeof(lookup);
+    lookup.symvalue = 0;
+    lookup.symsize = 0;
+    lookup.symname = symname;
+
+    if (lookup.symname[0] == '_')
+        lookup.symname++;
+
+    struct kldsym_args args;
+    args.fileid = 0;
+    args.cmd = KLDSYM_LOOKUP;
+    args.data = &lookup;
+
+    //if (kldsym(0, KLDSYM_LOOKUP, &lookup) != -1) {
+    if (sys_kldsym(curthread, &args) != -1) {
+        p->n_type = N_TEXT;
+        //if (_kvm_vnet_initialized(kd, initialize) &&
+        //		strcmp(prefix, VNET_SYMPREFIX) == 0)
+        //	p->n_value =
+        //		_kvm_vnet_validaddr(kd, lookup.symvalue);
+        //else if (_kvm_dpcpu_initialized(kd, initialize) &&
+        //		strcmp(prefix, DPCPU_SYMPREFIX) == 0)
+        //	p->n_value =
+        //		_kvm_dpcpu_validaddr(kd, lookup.symvalue);
+        //else
+        p->n_value = lookup.symvalue;
+    }
+
+    return 0;
 }

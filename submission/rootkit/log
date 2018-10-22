@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Please run this on the $TARGET machine to get the keylog
-cat /etc/good_luck_finding_this/keystrokes.txt
